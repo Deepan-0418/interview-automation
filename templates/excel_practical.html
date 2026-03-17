@@ -1,0 +1,104 @@
+{% extends "base.html" %}
+{% block title %}Excel Practical Test{% endblock %}
+{% block content %}
+    <div class="content-container">
+        <div class="container quiz-container fade-in">
+            <h1>Excel Practical Test</h1>
+            <p class="fade-in delay-1">Hello, {{ name }}! Please read the instructions below before proceeding with the Excel practical test.</p>
+            <!-- Progress Bar for Test Completion -->
+            <div class="progress-bar fade-in delay-2" role="progressbar" aria-label="Test Progress" aria-valuenow="75" aria-valuemin="0" aria-valuemax="100">
+                <div class="progress-fill" style="width: 75%;"></div>
+            </div>
+            {% if completed %}
+                <div class="card fade-in delay-3">
+                    {% if sheet_scores %}
+                        <!-- Calculate sum of binary scores -->
+                        {% set total_score = sheet_scores.values()|sum %}
+                        <p class="alert alert-success">Excel Practical Test completed! Total Score: {{ total_score }}/10</p>
+                        <!-- Visual representation: Progress bar for total score -->
+                        <div class="progress-bar score-progress fade-in delay-4" role="progressbar" aria-label="Excel Test Score" aria-valuenow="{{ (total_score / 10 * 100)|round }}" aria-valuemin="0" aria-valuemax="100">
+                            <div class="progress-fill" style="width: {{ (total_score / 10 * 100)|round }}%; background-color: #28a745;">
+                                {{ total_score }}/10
+                            </div>
+                        </div>
+                        <h2>Sheet-wise Quality Scores</h2>
+                        <table class="results-table">
+                            <thead>
+                                <tr>
+                                    <th>Sheet Name</th>
+                                    <th>Quality Score</th>
+                                    <th>Score</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for sheet_name, score in sheet_scores.items() %}
+                                    <tr>
+                                        <td>{{ sheet_name }}</td>
+                                        <td>{{ '100%' if score == 1 else '0%' }}</td>
+                                        <td>{{ 1 if score == 1 else 0 }}</td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    {% endif %}
+                    <a href="{{ url_for('welcome') }}" class="btn back-link" aria-label="Return to welcome page">Back to Welcome</a>
+                </div>
+            {% else %}
+                <div class="card quiz-card fade-in delay-3">
+                    <h2>Instructions</h2>
+                    <p>Follow these steps to complete the Excel Practical Test:</p>
+                    <ul class="task-list">
+                        <li>
+                            <span class="task-step">Step 1:</span>
+                            Download the template file:
+                            <a href="{{ url_for('download_excel_template') }}" class="btn" aria-label="Download Excel Template">Download Template</a>
+                        </li>
+                        <li>
+                            <span class="task-step">Step 2:</span>
+                            Complete the tasks listed below in the Excel file.
+                        </li>
+                        <li>
+                            <span class="task-step">Step 3:</span>
+                            Save your work and upload the completed file below.
+                        </li>
+                        <li>
+                            <span class="task-step">Step 4:</span>
+                            Your uploaded file will be validated against the master solution, and sheet-wise and overall quality scores will be generated.
+                        </li>
+                    </ul>
+                </div>
+                <div class="card quiz-card slide-in-left delay-4">
+                    <h2>Tasks</h2>
+                    {% if tasks %}
+                        <ol class="task-list" style="text-align: left;">
+                            {% for task in tasks %}
+                                <li class="task-item">{{ task.description | safe }}</li>
+                            {% endfor %}
+                        </ol>
+                    {% else %}
+                        <p class="alert alert-error">No tasks available. Please contact the administrator.</p>
+                    {% endif %}
+                </div>
+                <form method="post" enctype="multipart/form-data" class="card quiz-card fade-in delay-4">
+                    <div class="form-group">
+                        <label for="file" class="label">Upload Completed Excel File:</label>
+                        <input type="file" id="file" name="file" accept=".xlsx" required
+                               class="file-input" aria-describedby="file-help"
+                               aria-required="true">
+                        <p id="file-help" class="help-text">Please upload an .xlsx file with your completed tasks.</p>
+                    </div>
+                    <button type="submit" class="btn quiz-submit-btn" aria-label="Submit Excel File">Submit</button>
+                </form>
+            {% endif %}
+            {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                <div class="flash-messages fade-in delay-2">
+                    {% for category, message in messages %}
+                        <p class="alert alert-{{ 'success' if category == 'success' else 'error' }}">{{ message }}</p>
+                    {% endfor %}
+                </div>
+            {% endif %}
+            {% endwith %}
+        </div>
+    </div>
+{% endblock %}

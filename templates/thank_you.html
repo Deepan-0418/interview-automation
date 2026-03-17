@@ -1,0 +1,278 @@
+{% extends "base.html" %}
+{% block title %}Results — Interview Automation{% endblock %}
+{% block content %}
+
+<div style="text-align:center;margin-bottom:var(--sp-8);">
+    <div style="font-size:2.75rem;margin-bottom:var(--sp-3);">🎉</div>
+    <h1 class="fade-in">Well Done, {{ name }}!</h1>
+    <p class="fade-in delay-1">
+        You have successfully completed all four tests.
+        Your results are summarised below.
+    </p>
+</div>
+
+<!-- ── Candidate Info ──────────────────────────────────── -->
+<div class="card fade-in delay-1">
+    <h2>Candidate Information</h2>
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));
+        gap:var(--sp-3);margin-top:var(--sp-2);">
+        {% set info = [
+            ('Name', name),
+            ('Sign-up Date', signup_date),
+            ('Location', session.location),
+            ('Distance', session.distance ~ ' km'),
+            ('Attempt', session.attempt_number),
+        ] %}
+        {% for label, value in info %}
+        <div style="background:var(--gray-50);border:1px solid var(--gray-150);
+            border-radius:var(--r-md);padding:var(--sp-3) var(--sp-4);">
+            <div style="font-size:var(--text-xs);font-weight:700;color:var(--gray-400);
+                text-transform:uppercase;letter-spacing:0.07em;margin-bottom:2px;">
+                {{ label }}
+            </div>
+            <div style="font-size:var(--text-base);font-weight:600;color:var(--gray-800);">
+                {{ value }}
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+
+<!-- ── Score Summary Cards ─────────────────────────────── -->
+{% set hw_correct = handwritten_results | selectattr('status', 'equalto', 'Correct') | list | length %}
+{% set hw_total   = handwritten_results | length %}
+{% set hw_pct     = ((hw_correct / hw_total * 100) | round | int) if hw_total > 0 else 0 %}
+{% set quiz_pct   = ((excel_score / excel_total * 100) | round | int) if excel_total > 0 else 0 %}
+{% set prac_total = excel_sheet_scores.values() | sum if excel_sheet_scores else 0 %}
+{% set prac_pct   = ((prac_total / 10 * 100) | round | int) if excel_sheet_scores else 0 %}
+
+<div class="fade-in delay-2" style="display:grid;
+    grid-template-columns:repeat(auto-fit,minmax(200px,1fr));
+    gap:var(--sp-4);margin-bottom:var(--sp-6);">
+
+    {% set summary = [
+        ('⌨️', 'Typing Test', results | length ~ '/3 attempts', results | length >= 3),
+        ('✍️', 'Handwritten', hw_correct ~ '/' ~ hw_total ~ ' correct', hw_correct >= 8),
+        ('📊', 'Excel Quiz', excel_score ~ '/' ~ excel_total ~ ' correct', excel_score >= 7),
+        ('📁', 'Excel Practical', prac_total ~ '/10 sheets', prac_total >= 7),
+    ] %}
+    {% for icon, label, value, passed in summary %}
+    <div style="background:var(--gray-0);border:1px solid
+        {{ '#bbf7d1' if passed else '#fecdd0' }};
+        border-radius:var(--r-xl);padding:var(--sp-5);
+        box-shadow:var(--shadow-sm);">
+        <div style="font-size:1.6rem;margin-bottom:var(--sp-2);">{{ icon }}</div>
+        <div style="font-size:var(--text-xs);font-weight:700;color:var(--gray-400);
+            text-transform:uppercase;letter-spacing:0.07em;margin-bottom:4px;">
+            {{ label }}
+        </div>
+        <div style="font-size:var(--text-lg);font-weight:700;
+            color:{{ 'var(--green-700)' if passed else 'var(--red-600)' }};">
+            {{ value }}
+        </div>
+        <div style="margin-top:var(--sp-2);display:inline-flex;align-items:center;
+            gap:4px;font-size:var(--text-xs);font-weight:700;padding:3px 10px;
+            border-radius:var(--r-full);
+            background:{{ 'var(--green-100)' if passed else 'var(--red-100)' }};
+            color:{{ 'var(--green-700)' if passed else 'var(--red-700)' }};
+            border:1px solid {{ 'var(--green-200)' if passed else 'var(--red-200)' }};">
+            {{ '✓ Pass' if passed else '✗ Needs Review' }}
+        </div>
+    </div>
+    {% endfor %}
+</div>
+
+<!-- ── Typing Test Detail ──────────────────────────────── -->
+<div class="card fade-in delay-2">
+    <h2>⌨️ Typing Test Results</h2>
+    {% if results %}
+    <div style="overflow-x:auto;">
+        <table class="results-table">
+            <thead>
+                <tr>
+                    <th>Attempt</th>
+                    <th>Type</th>
+                    <th>WPM</th>
+                    <th>Accuracy</th>
+                    <th>Time</th>
+                    <th>Date</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for result in results %}
+                <tr>
+                    <td>
+                        {% if result.attempt == 1 %}1st
+                        {% elif result.attempt == 2 %}2nd
+                        {% elif result.attempt == 3 %}3rd
+                        {% else %}{{ result.attempt }}{% endif %}
+                    </td>
+                    <td>{{ result.difficulty | capitalize }}</td>
+                    <td><strong>{{ result.wpm }}</strong></td>
+                    <td>{{ result.accuracy }}%</td>
+                    <td>{{ result.time_limit // 60 }}:{{ '%02d' | format(result.time_limit % 60) }}</td>
+                    <td style="color:var(--gray-400);font-size:var(--text-xs);">
+                        {{ result.test_date }}
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% else %}
+    <p style="color:var(--gray-400);">No typing test results available.</p>
+    {% endif %}
+</div>
+
+<!-- ── Handwritten Detail ─────────────────────────────── -->
+<div class="card fade-in delay-2">
+    <h2>✍️ Handwritten Verification</h2>
+    <div style="display:flex;align-items:center;gap:var(--sp-6);flex-wrap:wrap;">
+        <div>
+            <div style="font-size:var(--text-xs);font-weight:700;color:var(--gray-400);
+                text-transform:uppercase;letter-spacing:0.07em;margin-bottom:4px;">
+                Score
+            </div>
+            <div style="font-size:var(--text-3xl);font-weight:800;color:var(--navy-900);">
+                {{ hw_correct }}<span style="color:var(--gray-300);">/{{ hw_total }}</span>
+            </div>
+        </div>
+        <div style="flex:1;min-width:160px;">
+            <div style="height:8px;background:var(--gray-200);
+                border-radius:var(--r-full);overflow:hidden;margin-bottom:var(--sp-2);">
+                <div style="height:100%;width:{{ hw_pct }}%;
+                    background:linear-gradient(90deg,var(--teal-500),var(--teal-400));
+                    border-radius:var(--r-full);transition:width 0.6s ease;">
+                </div>
+            </div>
+            <div style="font-size:var(--text-sm);color:var(--gray-500);">
+                {{ hw_pct }}% accuracy
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ── Excel Quiz Detail ──────────────────────────────── -->
+<div class="card fade-in delay-2">
+    <h2>📊 Excel Quiz</h2>
+    <div style="display:flex;align-items:center;gap:var(--sp-6);flex-wrap:wrap;">
+        <div>
+            <div style="font-size:var(--text-xs);font-weight:700;color:var(--gray-400);
+                text-transform:uppercase;letter-spacing:0.07em;margin-bottom:4px;">
+                Score
+            </div>
+            <div style="font-size:var(--text-3xl);font-weight:800;color:var(--navy-900);">
+                {{ excel_score }}<span style="color:var(--gray-300);">/{{ excel_total }}</span>
+            </div>
+        </div>
+        <div style="flex:1;min-width:160px;">
+            <div style="height:8px;background:var(--gray-200);
+                border-radius:var(--r-full);overflow:hidden;margin-bottom:var(--sp-2);">
+                <div style="height:100%;width:{{ quiz_pct }}%;
+                    background:linear-gradient(90deg,var(--navy-500),var(--navy-400));
+                    border-radius:var(--r-full);">
+                </div>
+            </div>
+            <div style="font-size:var(--text-sm);color:var(--gray-500);">
+                {{ quiz_pct }}% correct
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ── Excel Practical Detail ─────────────────────────── -->
+<div class="card fade-in delay-2">
+    <h2>📁 Excel Practical Test</h2>
+    {% if excel_sheet_scores %}
+    <div style="display:flex;align-items:center;gap:var(--sp-6);
+        flex-wrap:wrap;margin-bottom:var(--sp-5);">
+        <div>
+            <div style="font-size:var(--text-xs);font-weight:700;color:var(--gray-400);
+                text-transform:uppercase;letter-spacing:0.07em;margin-bottom:4px;">
+                Total Score
+            </div>
+            <div style="font-size:var(--text-3xl);font-weight:800;color:var(--navy-900);">
+                {{ prac_total }}<span style="color:var(--gray-300);">/10</span>
+            </div>
+        </div>
+        <div style="flex:1;min-width:160px;">
+            <div style="height:8px;background:var(--gray-200);
+                border-radius:var(--r-full);overflow:hidden;margin-bottom:var(--sp-2);">
+                <div style="height:100%;width:{{ prac_pct }}%;
+                    background:linear-gradient(90deg,var(--teal-600),var(--teal-400));
+                    border-radius:var(--r-full);">
+                </div>
+            </div>
+            <div style="font-size:var(--text-sm);color:var(--gray-500);">
+                {{ prac_pct }}% sheets correct
+            </div>
+        </div>
+    </div>
+    <div style="overflow-x:auto;">
+        <table class="results-table">
+            <thead>
+                <tr>
+                    <th>Sheet</th>
+                    <th>Result</th>
+                    <th>Score</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for sheet_name, score in excel_sheet_scores.items() %}
+                <tr>
+                    <td>{{ sheet_name }}</td>
+                    <td>
+                        <span style="display:inline-flex;align-items:center;gap:4px;
+                            font-size:var(--text-xs);font-weight:700;
+                            padding:2px 10px;border-radius:var(--r-full);
+                            background:{{ 'var(--green-100)' if score == 1 else 'var(--red-100)' }};
+                            color:{{ 'var(--green-700)' if score == 1 else 'var(--red-600)' }};
+                            border:1px solid {{ 'var(--green-200)' if score == 1 else 'var(--red-200)' }};">
+                            {{ '✓ Correct' if score == 1 else '✗ Incorrect' }}
+                        </span>
+                    </td>
+                    <td><strong>{{ 1 if score == 1 else 0 }}</strong>/1</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% if excel_practical_file %}
+    <p style="margin-top:var(--sp-4);font-size:var(--text-sm);color:var(--gray-400);">
+        📎 Submitted file: <code style="font-family:var(--font-mono);
+            background:var(--gray-100);padding:2px 6px;
+            border-radius:var(--r-sm);font-size:var(--text-xs);">
+            {{ excel_practical_file }}
+        </code>
+    </p>
+    {% endif %}
+    {% else %}
+    <p style="color:var(--gray-400);">No practical test results available.</p>
+    {% endif %}
+</div>
+
+<!-- ── Actions ────────────────────────────────────────── -->
+<div class="fade-in delay-2" style="display:flex;gap:var(--sp-3);
+    flex-wrap:wrap;justify-content:center;margin-top:var(--sp-4);">
+    <a href="{{ url_for('download_results') }}" class="btn btn-accent"
+        style="padding:0.75rem var(--sp-8);">
+        ⬇ Download Results
+    </a>
+    <a href="{{ url_for('welcome') }}" class="btn btn-ghost">
+        ← Back to Welcome
+    </a>
+</div>
+
+{% with messages = get_flashed_messages(with_categories=true) %}
+{% if messages %}
+<div class="flash-messages" style="margin-top:var(--sp-5);">
+    {% for category, message in messages %}
+    <p class="alert alert-{{ 'success' if category == 'success' else 'error' }}">
+        {{ message }}
+    </p>
+    {% endfor %}
+</div>
+{% endif %}
+{% endwith %}
+
+{% endblock %}

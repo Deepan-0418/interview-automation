@@ -1,0 +1,143 @@
+{% extends "base.html" %}
+{% block title %}Welcome{% endblock %}
+{% block content %}
+<div class="container">
+    <h1 class="fade-in">Welcome to Interview Automation</h1>
+    <p class="fade-in delay-1">Streamline your interview process with our automated system.</p>
+
+    {% if session.user_name %}
+        <!-- Candidate Info Card -->
+        <div class="fade-in delay-1" style="
+            background:#f8fafc;border:1px solid #e2e8f0;border-radius:12px;
+            padding:18px 22px;margin-bottom:28px;display:grid;
+            grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:10px;">
+            <div><span style="font-size:12px;color:#64748b;text-transform:uppercase;letter-spacing:.8px;">Name</span><br>
+                <strong style="color:#0f172a;">{{ session.user_name }}</strong></div>
+            <div><span style="font-size:12px;color:#64748b;text-transform:uppercase;letter-spacing:.8px;">Signed Up</span><br>
+                <strong style="color:#0f172a;">{{ session.signup_date }}</strong></div>
+            <div><span style="font-size:12px;color:#64748b;text-transform:uppercase;letter-spacing:.8px;">Location</span><br>
+                <strong style="color:#0f172a;">{{ session.location }}</strong></div>
+            <div><span style="font-size:12px;color:#64748b;text-transform:uppercase;letter-spacing:.8px;">Distance</span><br>
+                <strong style="color:#0f172a;">{{ session.distance }} km</strong></div>
+            <div><span style="font-size:12px;color:#64748b;text-transform:uppercase;letter-spacing:.8px;">Attempt</span><br>
+                <strong style="color:#0f172a;">{{ session.attempt_number }}</strong></div>
+            <div><span style="font-size:12px;color:#64748b;text-transform:uppercase;letter-spacing:.8px;">Date of Birth</span><br>
+                <strong style="color:#0f172a;">{{ session.dob }}</strong></div>
+        </div>
+
+        <p class="fade-in delay-2" style="font-weight:600;color:#0f172a;margin-bottom:16px;">
+            Please complete the following tests:
+        </p>
+
+        <!-- Test Cards -->
+        <div class="fade-in delay-2" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:16px;margin-bottom:28px;">
+
+            {% set tests = [
+                ('Typing Test',            url_for('typing_test'),      session.typing_completed,      '⌨️'),
+                ('Handwritten Verification',url_for('handwritten_round'),session.handwritten_completed, '✍️'),
+                ('Excel Quiz',             url_for('excel_quiz'),       session.excel_quiz_completed,  '📊'),
+                ('Excel Practical Test',   url_for('excel_practical'),  session.excel_practical_completed, '📁'),
+            ] %}
+
+            {% for label, link, completed, icon in tests %}
+            <div style="
+                background:#fff;border:1px solid {% if completed %}#a7f3d0{% else %}#e2e8f0{% endif %};
+                border-radius:12px;padding:20px 18px;
+                box-shadow:0 1px 4px rgba(0,0,0,0.05);
+                display:flex;flex-direction:column;align-items:flex-start;gap:12px;
+                transition:box-shadow 0.2s;">
+
+                <!-- Icon + Label -->
+                <div style="display:flex;align-items:center;gap:8px;">
+                    <span style="font-size:22px;">{{ icon }}</span>
+                    <span style="font-weight:600;font-size:14px;color:#0f172a;">{{ label }}</span>
+                </div>
+
+                <!-- Status Badge -->
+                {% if completed %}
+                <div style="
+                    display:inline-flex;align-items:center;gap:5px;
+                    background:#d1fae5;color:#065f46;
+                    border:1px solid #a7f3d0;border-radius:20px;
+                    font-size:12px;font-weight:700;padding:4px 12px;">
+                    ✓ Completed
+                </div>
+                {% else %}
+                <div style="
+                    display:inline-flex;align-items:center;gap:5px;
+                    background:#fef9c3;color:#854d0e;
+                    border:1px solid #fde68a;border-radius:20px;
+                    font-size:12px;font-weight:700;padding:4px 12px;">
+                    ⏳ Pending
+                </div>
+                {% endif %}
+
+                <!-- Button -->
+                <a href="{{ link }}" style="
+                    display:inline-flex;align-items:center;gap:6px;
+                    padding:9px 16px;border-radius:8px;font-size:13px;font-weight:600;
+                    text-decoration:none;transition:opacity 0.15s,transform 0.12s;
+                    {% if completed %}
+                    background:#f1f5f9;color:#475569;border:1px solid #e2e8f0;
+                    {% else %}
+                    background:#0f172a;color:#fff;border:1px solid #0f172a;
+                    {% endif %}"
+                    onmouseover="this.style.transform='translateY(-1px)'"
+                    onmouseout="this.style.transform='translateY(0)'">
+                    {% if completed %}↩ Revisit{% else %}▶ Start{% endif %}
+                </a>
+            </div>
+            {% endfor %}
+        </div>
+
+        <!-- All Done Banner -->
+        {% if session.handwritten_completed and session.typing_completed and session.excel_quiz_completed and session.excel_practical_completed %}
+        <div class="fade-in delay-2" style="
+            background:#f0fdf4;border:1px solid #86efac;border-radius:12px;
+            padding:20px 24px;display:flex;align-items:center;
+            justify-content:space-between;flex-wrap:wrap;gap:12px;margin-bottom:16px;">
+            <div style="display:flex;align-items:center;gap:10px;">
+                <span style="font-size:28px;">🎉</span>
+                <div>
+                    <strong style="color:#14532d;font-size:15px;">All tests completed!</strong>
+                    <p style="margin:2px 0 0;font-size:13px;color:#166534;">
+                        Great work, {{ session.user_name }}. You can now view your results.
+                    </p>
+                </div>
+            </div>
+            <a href="{{ url_for('thank_you') }}" style="
+                display:inline-flex;align-items:center;gap:6px;
+                padding:10px 20px;border-radius:8px;
+                background:#16a34a;color:#fff;font-size:14px;font-weight:600;
+                text-decoration:none;border:none;
+                transition:opacity 0.15s;">
+                View Results →
+            </a>
+        </div>
+        {% endif %}
+
+    {% else %}
+        <!-- Not signed in -->
+        <div class="fade-in delay-2" style="
+            background:#f8fafc;border:1px solid #e2e8f0;border-radius:12px;
+            padding:32px;text-align:center;margin-top:16px;">
+            <p style="color:#64748b;margin-bottom:20px;font-size:15px;">
+                Please sign up to begin the interview process.
+            </p>
+            <a href="{{ url_for('signup') }}" class="btn">Sign Up to Get Started</a>
+        </div>
+    {% endif %}
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+    <div class="flash-messages" style="margin-top:16px;">
+        {% for category, message in messages %}
+        <p class="alert alert-{{ 'success' if category == 'success' else ('info' if category == 'info' else 'error') }}">
+            {{ message }}
+        </p>
+        {% endfor %}
+    </div>
+    {% endif %}
+    {% endwith %}
+</div>
+{% endblock %}

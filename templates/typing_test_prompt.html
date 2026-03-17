@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+{% block title %}Typing Test Prompt{% endblock %}
+{% block content %}
+    <div class="container">
+        <h1 class="fade-in">Typing Test - Next Steps</h1>
+        <p class="fade-in delay-1">Hello, {{ name }}! You have completed 2 typing test attempts.</p>
+        <p class="fade-in delay-1">Would you like to take a third attempt, or proceed to the next step?</p>
+        <div class="card fade-in delay-2">
+            <form method="POST" action="{{ url_for('typing_test_prompt') }}" autocomplete="off">
+                <div class="form-group">
+                    <button type="submit" name="choice" value="continue" class="btn">Take Third Attempt</button>
+                    <button type="submit" name="choice" value="skip" class="btn">Proceed to Next Step</button>
+                </div>
+            </form>
+        </div>
+        
+        <a href="{{ url_for('welcome') }}" class="back-link fade-in delay-2" aria-label="Return to welcome page">Back to Welcome</a>
+        
+        {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+        <div class="flash-messages">
+            {% for category, message in messages %}
+            <p class="alert alert-{{ 'success' if category == 'success' else 'error' }}">{{ message }}</p>
+            {% endfor %}
+        </div>
+        {% endif %}
+        {% endwith %}
+    </div>
+{% endblock %}

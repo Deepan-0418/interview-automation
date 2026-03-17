@@ -1,0 +1,602 @@
+{   
+    "sample_paragraphs": {
+        "easy": [
+        "Sean Vacca pressed his way through another morning, following the cracked sidewalks like a programmed warehouse robot. It was another grey Tuesday in November, and it was time for the weekly junior college faculty meeting. The meeting weighed heavy on Sean's faded dreams. He had already burned through his allotted absences during the first semester. The darkness that haunted his soul seeped through every crack and line in the wood paneled faculty room. Dr. Caun was the president of the Jacksonville State Junior college. He began the session with his usual monotone rants about tight budgets and complaining parents. The senior faculty members made some attempt to be interested, but their heads soon began to nod like a bobblehead on the dashboard of a low-rider. Sean's head bowed low and his long dark bangs hung like a curtain to hide his web surfing eyes. The crack of a ruler struck the table and broke through the static noise. The loud pop startled him and Sean's smartphone fell to the floor.",
+        "Dr. Caun felt that the Junior College could stand some positive community involvement and had intended on asking for a faculty member to volunteer. This opportunity for publicity was too good to let pass. The tension in the room snapped like an old guitar string as the other faculty members tried to hold their snickers and smirks. It was just another loss in the game of life for Mr. Vacca. He could not imagine what kind of victory was waiting just around the bend. The following Saturday was the first meeting where he introduced himself to the group of amateur writers. The monthly meeting was held in the basement of the old downtown library. The cold room had about 20 folding chairs, set up church style.",
+        "Mr. Vacca walked to the door and then into the hallway and looked for anyone who might be lost or running a few minutes late. He noticed some people had set up display tables for a woodworker's art exhibit. There were many items already on the tables including decorative bowls, toy trains and even some musical instruments. When he turned to go back into the room, he accidentally knocked a beautiful wooden ink pen off the table. 'That's okay, honey,' said a very large woman standing on the other side of the table. She was wearing blue jean overalls covering a bright pink t-shirt. 'You can keep it. I didn't even make it. My pappy said that he found it when he was working on the Panama Canal. It's made from some kind of illegal rosewood. That thing has given me nothing but a headache. I can't even sell it, and I am tired of lugging it around. You’ll be doing me a favor by taking it, darling.'",
+        "Mr. Vacca handed out the papers that he brought for the planned activity. 'As you can see, I have prepared examples of famous opening sentences. What I would like for you to do is write a similar sentence that you would use if you were going to write a novel about your life and had the chance to live it all over again. You can begin now.' A few minutes passed by when Jimmy Necot spoke up, 'Excuse me, Mr. Vacca. I seem to have lost my pen. Do you have one that I could borrow?' Mr. Vacca reached into his shirt pocket and handed Jimmy the pen that he had picked up earlier in the hallway. When Jimmy started to write his opening sentence, something very strange happened.",
+        "The black ink that made the letters on the white paper began to spread like drops of iodine in a bucket of ammonia. It diffused to the edge of the paper, across the floor and finally to the baseboards and up the walls. The ink that trailed up the walls formed cracks that opened wider and wider. Everyone, except Jimmy, was shocked to see the fantasy world form right before their eyes. Jimmy wrote about his childhood dream of being a racecar driver. The walls of the library basement disappeared and the scene opened up to a huge NASCAR race. Mr. Vacca reached up and felt headphones on his ears and looked at the microphone placed in front of him. He was an announcer on a trackside tower. The racecars roared past in a thunderous symphony and someone beside him elbowed him in the side."
+        ],
+        "medium": [
+        "Water makes up about 70% of the human body, and without it, survival is impossible. Doctors often advise drinking at least 8 glasses of water daily to stay healthy. Athletes may lose 2 liters of water through sweat in just 1 hour of activity, which must be replaced to avoid dehydration. Lack of water can cause headaches, tiredness, and difficulty concentrating. Drinking enough also supports digestion, helps regulate body temperature, and improves skin health. Studies show that people who drink sufficient water daily perform 10% better in work and studies. Something as simple as water, available at Rs. 20 per bottle in most shops, has the power to improve both body and mind. Staying hydrated is a basic but essential habit for long life.",
+        "Saving money requires discipline and a smart plan. The popular 50/30/20 rule suggests spending 50% of your income on needs, 30% on wants, and 20% on savings. For example, if you earn Rs. 30,000 each month, you should aim to save Rs. 6,000. Over 12 months, this adds up to Rs. 72,000. In 10 years, without even counting interest, you would have Rs. 7,20,000 saved. If invested with 10% yearly growth, this could become more than Rs. 12,00,000. Small savings habits like avoiding Rs. 100 coffee daily can also make a big difference. Building wealth is not about luck but about patience, habits, and planning.",
+        "Emails remain the main tool of communication in professional life. A good email should be short, polite, and clear, usually between 50 words. Greetings like 'Hello,' closings like 'Thank you,' and sign-offs like 'Regards' help maintain respect. Using ALL CAPS, for example 'PLEASE REPLY,' feels rude or aggressive. Attachments should be small in size, not more than 25MB, unless compressed. Professionals often check emails two times a day, but too many notifications can reduce focus. A well-written email not only shares information but also builds trust and long-term relationships. In today's world, good email habits are as valuable as speaking skills.",
+        "Exercise for at least 30 minutes a day, 5 times a week, is recommended by health experts. Running burns about ~600 calories per hour, while walking burns ~300. A person weighing 70kg requires roughly 2000 calories daily to maintain weight. Skipping exercise often leads to weight gain, back pain, and lower energy levels. Even 10 pushups a day can improve fitness over time. Many people track their steps, aiming for 8,000–10,000 daily. Small habits, like taking stairs instead of elevators, add up. Combining exercise with balanced meals creates long-term health and reduces the risk of diseases like diabetes or heart problems.",
+        "Passwords are the first line of defense in online security. A strong password should have at least 8 characters, including symbols like @ or #. For example, 'Life@123' is far safer than 'life123.' Weak passwords are often guessed by brute force attacks, where hackers try 1,000+ combinations every second. In 2024, over 30M accounts worldwide were hacked because of poor password habits. Two-factor authentication (2FA) adds another layer of safety by sending a code to your phone or email. Cybersecurity is no longer optional — it protects both personal and business data. Simple precautions today can prevent major problems tomorrow.",
+        "Time is one of the most valuable resources in life. A day has 24 hours, equal to 1,440 minutes or 86,400 seconds. If you spend just 2 hours per day studying, that adds up to 60 hours per month. In a year, that equals 720 hours, or 30 full days of learning. Many people waste 3 hours daily on distractions like scrolling social media or unnecessary browsing. By managing time better, you can achieve goals faster. Tools like calendars, alarms, and to-do lists are effective. The secret is not having more time but using time wisely. Every second counts toward success."
+        ],
+        "hard": [
+        "Artificial Intelligence (AI) is expanding rapidly, with annual growth rates of 20–25%. Modern models like GPT-4 have ~175B parameters, while smaller ones operate with 7B or 13B. Training such models requires thousands of GPUs, each costing $10,000+, and consumes power equal to running 1,000 households for a week. AI powers services like medical imaging, chatbots, and fraud detection. However, it also raises issues like job loss, bias, and data privacy. For example, in 2023 alone, 40% of companies reported data leaks caused by poor AI security. As AI improves, laws and ethics must evolve to keep up. The future of AI depends not just on technology but also on responsible human decisions.",
+        "The stock market reflects the performance of companies through indexes like NIFTY50, S&P500, or Dow Jones. A share priced at Rs. 1,000 growing 12% annually becomes Rs. 1,126 in 1 year. In 10 years, due to compound interest, it becomes Rs. 3,105. Long-term investments outperform short-term trading in most cases. Investors often use the P/E ratio (Price ÷ Earnings) to measure value. For example, a company with Rs. 100 earnings per share and Rs. 1,500 share price has a P/E of 15. Markets are unpredictable in the short term, but disciplined investing builds wealth over time. Understanding risks and returns is essential for success.",
+        "Quantum computing is a revolutionary shift from classical computing. Unlike bits (0 or 1), qubits can exist in |0>, |1>, or a superposition of both. This property, along with entanglement, allows massive parallelism. For example, a 50-qubit computer can perform 2^50 (~1 quadrillion) operations simultaneously. However, qubits are unstable, with error rates often above 0.1%. Error correction requires thousands of physical qubits for one logical qubit. Despite challenges, quantum systems have already solved chemistry problems impossible for supercomputers. Future applications may include drug discovery, AI acceleration, and cryptography. Yet, building reliable machines demands new algorithms, materials, and approaches.",
+        "Globalization has transformed the economy, connecting markets worth trillions of dollars. In 2023, world exports crossed ~$25T, while imports were nearly the same. This creates jobs but also deepens inequality. For instance, the richest 1% own nearly 50% of global wealth, while billions live on less than $5/day. Technology enables instant transfers of money and ideas, but it also creates cultural homogenization. Policymakers must balance growth with sustainability, fairness, and climate responsibility. The challenge is ensuring that globalization benefits everyone, not just a few powerful corporations.",
+        "DNA, the blueprint of life, contains ~3B base pairs (A, T, C, G). A single mutation, such as replacing C with T, can cause disorders like sickle cell anemia. Gene-editing technologies like CRISPR-Cas9 cut DNA at precise points with 90–95% accuracy. Scientists hope to cure diseases, grow stronger crops, and even extend human life. However, ethical debates surround editing embryos, as it may create 'designer babies.' In 2022, a case in China raised global concerns when edited babies were born. DNA research has great potential but must be guided by responsibility and fairness.",
+        "Cybersecurity protects digital data from hackers, who attempt millions of attacks daily. In 2024, over 30M records were leaked due to phishing and brute force methods. Phishing emails trick people into sharing passwords, while brute force can test 1,000+ passwords per second. Strong encryption methods like AES-256 make stolen data nearly impossible to break without a key. Still, 90% of breaches occur due to human error, such as weak passwords or ignored warnings. Companies spend billions of dollars each year to secure systems, but personal safety habits matter too. As technology grows, cybersecurity becomes one of the most critical fields in the world."
+        ]
+    },
+    "handwritten_texts": [
+        {
+            "image": "handwritten_text1.png",
+            "text": "Sarah Jane"
+        },
+        {
+            "image": "handwritten_text2.png",
+            "text": "Scholar"
+        },
+        {
+            "image": "handwritten_text3.png",
+            "text": "Dorothy"
+        },
+        {
+            "image": "handwritten_text4.png",
+            "text": "Patricia Anne"
+        },
+        {
+            "image": "handwritten_text5.png",
+            "text": "John Buchanan"
+        },
+        {
+            "image": "handwritten_text6.png",
+            "text": "Seward"
+        },
+        {
+            "image": "handwritten_text7.png",
+            "text": "Johnson"
+        },
+        {
+            "image": "handwritten_text8.png",
+            "text": "Ozanne"
+        },
+        {
+            "image": "handwritten_text9.png",
+            "text": "Blackwood"
+        },
+        {
+            "image": "handwritten_text10.png",
+            "text": "Marshall"
+        },
+        {
+            "image": "handwritten_text11.png",
+            "text": "Amos"
+        },
+        {
+            "image": "handwritten_text12.png",
+            "text": "Elizabeth"
+        },
+        {
+            "image": "handwritten_text13.png",
+            "text": "Hawksworth"
+        },
+        {
+            "image": "handwritten_text14.png",
+            "text": "Springthorpe"
+        },
+        {
+            "image": "handwritten_text15.png",
+            "text": "Josephine"
+        },
+        {
+            "image": "handwritten_text16.png",
+            "text": "McAloone"
+        },
+        {
+            "image": "handwritten_text17.png",
+            "text": "Harrison"
+        },
+        {
+            "image": "handwritten_text18.png",
+            "text": "Isaac"
+        },
+        {
+            "image": "handwritten_text19.png",
+            "text": "Mary Louisa"
+        },
+        {
+            "image": "handwritten_text20.png",
+            "text": "Tailor"
+        },
+        {
+            "image": "handwritten_text21.png",
+            "text": "Mariner"
+        },
+        {
+            "image": "handwritten_text22.png",
+            "text": "Carpenter"
+        },
+        {
+            "image": "handwritten_text23.png",
+            "text": "Ship Wright"
+        },
+        {
+            "image": "handwritten_text24.png",
+            "text": "News Agent"
+        },
+        {
+            "image": "handwritten_text25.png",
+            "text": "Rivetter"
+        },
+        {
+            "image": "handwritten_text26.png",
+            "text": "Lancaster"
+        },
+        {
+            "image": "handwritten_text27.png",
+            "text": "Barrow"
+        },
+        {
+            "image": "handwritten_text28.png",
+            "text": "Northscale"
+        },
+        {
+            "image": "handwritten_text29.png",
+            "text": "Park Street"
+        },
+        {
+            "image": "handwritten_text30.png",
+            "text": "Naylor"
+        },
+        {
+            "image": "handwritten_text31.png",
+            "text": "Elise"
+        },
+        {
+            "image": "handwritten_text32.png",
+            "text": "Baptiste"
+        },
+        {
+            "image": "handwritten_text33.png",
+            "text": "Antoine"
+        },
+        {
+            "image": "handwritten_text34.png",
+            "text": "henry"
+        },
+        {
+            "image": "handwritten_text35.png",
+            "text": "Jean Joseph"
+        },
+        {
+            "image": "handwritten_text36.png",
+            "text": "nicolas"
+        },
+        {
+            "image": "handwritten_text37.png",
+            "text": "Pauline"
+        },
+        {
+            "image": "handwritten_text38.png",
+            "text": "Rose"
+        },
+        {
+            "image": "handwritten_text39.png",
+            "text": "Sebastienne"
+        },
+        {
+            "image": "handwritten_text40.png",
+            "text": "Constance"
+        },
+        {
+            "image": "handwritten_text41.png",
+            "text": "Etienne"
+        },
+        {
+            "image": "handwritten_text42.png",
+            "text": "Isabelle"
+        },
+        {
+            "image": "handwritten_text43.png",
+            "text": "Irma"
+        },
+        {
+            "image": "handwritten_text44.png",
+            "text": "Ursule"
+        },
+        {
+            "image": "handwritten_text45.png",
+            "text": "Jacqueline"
+        },
+        {
+            "image": "handwritten_text46.png",
+            "text": "hubert"
+        },
+        {
+            "image": "handwritten_text47.png",
+            "text": "Emilienne"
+        }
+
+    ],
+    "excel_quiz_questions": [
+        {
+            "question": "Which shortcut is used for the Filter function in Excel?",
+            "options": [
+                "Ctrl + F",
+                "Ctrl + Shift + L",
+                "Alt + F4",
+                "Ctrl + H"
+            ],
+            "correct": "Ctrl + Shift + L"
+        },
+        {
+            "question": "Which key combination is used to undo an action?",
+            "options": [
+                "Ctrl + A",
+                "Ctrl + U",
+                "Ctrl + Z",
+                "Ctrl + R"
+            ],
+            "correct": "Ctrl + Z"
+        },
+        {
+            "question": "Which function is used to find the total of a column or row in Excel?",
+            "options": [
+                "=COUNT()",
+                "=SUM()",
+                "=AVERAGE()",
+                "=MAX()"
+            ],
+            "correct": "=SUM()"
+        },
+        {
+            "question": "Shortcut to insert a new worksheet in Excel?",
+            "options": [
+                "Ctrl + T",
+                "Shift + F11",
+                "Ctrl + W",
+                "Ctrl + N"
+            ],
+            "correct": "Shift + F11"
+        },
+        {
+            "question": "Shortcut to find data in Excel?",
+            "options": [
+                "Ctrl + H",
+                "Ctrl + F",
+                "Ctrl + D",
+                "Ctrl + G"
+            ],
+            "correct": "Ctrl + F"
+        },
+        {
+            "question": "What does Ctrl + H do in Excel?",
+            "options": [
+                "Opens Find box",
+                "Opens Replace box",
+                "Opens Save box",
+                "Opens Print box"
+            ],
+            "correct": "Opens Replace box"
+        },
+        {
+            "question": "What is the shortcut to insert a new worksheet in Excel?",
+            "options": [
+                "Ctrl + N",
+                "Shift + F11",
+                "Alt + W",
+                "Ctrl + T"
+            ],
+            "correct": "Shift + F11"
+        },
+        {
+            "question": "Which key is used to edit the active cell in Excel?",
+            "options": [
+                "F2",
+                "F4",
+                "F7",
+                "F12"
+            ],
+            "correct": "F2"
+        },
+        {
+            "question": "What does Ctrl + T do in Excel?",
+            "options": [
+                "Opens New Tab",
+                "Creates Table",
+                "Opens Format Cells",
+                "Opens Insert Chart"
+            ],
+            "correct": "Creates Table"
+        },
+        {
+            "question": "What does Ctrl + D do in Excel?",
+            "options": [
+                "Deletes a row",
+                "Fills content down",
+                "Duplicates worksheet",
+                "Opens Data menu"
+            ],
+            "correct": "Fills content down"
+        },
+        {
+            "question": "Shortcut to insert current date in Excel?",
+            "options": [
+                "Ctrl + Shift + T",
+                "Ctrl + ;",
+                "Ctrl + Shift + ;",
+                "Alt + D"
+            ],
+            "correct": "Ctrl + ;"
+        },
+        {
+            "question": "Which shortcut selects the whole worksheet?",
+            "options": [
+                "Ctrl + Shift + End",
+                "Ctrl + Home",
+                "Ctrl + A",
+                "Ctrl + Enter"
+            ],
+            "correct": "Ctrl + A"
+        },
+        {
+            "question": "Which key combination cuts selected data?",
+            "options": [
+                "Ctrl + V",
+                "Ctrl + X",
+                "Ctrl + C",
+                "Ctrl + S"
+            ],
+            "correct": "Ctrl + X"
+        },
+        {
+            "question": "What is the shortcut for copy and paste?",
+            "options": [
+                "Ctrl + X, Ctrl + V",
+                "Ctrl + C, Ctrl + V",
+                "Ctrl + Z, Ctrl + Y",
+                "Ctrl + A, Ctrl + P"
+            ],
+            "correct": "Ctrl + C, Ctrl + V"
+        },
+        {
+            "question": "How do you insert a new worksheet quickly?",
+            "options": [
+                "Shift + F11",
+                "Ctrl + N",
+                "Ctrl + W",
+                "Alt + F1"
+            ],
+            "correct": "Shift + F11"
+        },
+        {
+            "question": "Which feature is used to arrange numbers from small to big?",
+            "options": [
+                "Filter",
+                "Sort",
+                "Conditional Formatting",
+                "Data Validation"
+            ],
+            "correct": "Sort"
+        },
+        {
+            "question": "How can you rename a worksheet?",
+            "options": [
+                "Double-click the sheet tab",
+                "Right-click \u2192 Delete",
+                "Right-click \u2192 Move",
+                "Ctrl + R"
+            ],
+            "correct": "Double-click the sheet tab"
+        },
+        {
+            "question": "Which shortcut is used to create a new workbook?",
+            "options": [
+                "Ctrl + O",
+                "Ctrl + N",
+                "Ctrl + W",
+                "Ctrl + P"
+            ],
+            "correct": "Ctrl + N"
+        },
+        {
+            "question": "What does Ctrl + F do in Excel?",
+            "options": [
+                "Finds data",
+                "Filters data",
+                "Freezes pane",
+                "Formats cells"
+            ],
+            "correct": "Finds data"
+        },
+        {
+            "question": "Which function shows the highest value in a list?",
+            "options": [
+                "=MIN()",
+                "=MAX()",
+                "=LARGE()",
+                "=TOP()"
+            ],
+            "correct": "=MAX()"
+        },
+        {
+            "question": "Which key combination is used to close Excel?",
+            "options": [
+                "Ctrl + Q",
+                "Alt + F4",
+                "Ctrl + W",
+                "Shift + Esc"
+            ],
+            "correct": "Alt + F4"
+        },
+        {
+            "question": "Which symbol is used before a formula in Excel?",
+            "options": [
+                "#",
+                "=",
+                "@",
+                "$"
+            ],
+            "correct": "="
+        },
+        {
+            "question": "What is the shortcut to close an Excel workbook?",
+            "options": [
+                "Ctrl + S",
+                "Ctrl + C",
+                "Ctrl + W",
+                "Ctrl + V"
+            ],
+            "correct": "Ctrl + W"
+        },
+        {
+            "question": "What is the shortcut to redo an action in Excel?",
+            "options": [
+                "Ctrl + R",
+                "Ctrl + Y",
+                "Ctrl + T",
+                "Ctrl + D"
+            ],
+            "correct": "Ctrl + Y"
+        },
+        {
+            "question": "What is the shortcut to replace text in Excel?",
+            "options": [
+                "Ctrl + H",
+                "Ctrl + R",
+                "Ctrl + G",
+                "Ctrl + V"
+            ],
+            "correct": "Ctrl + H"
+        },
+        {
+            "question": "Which function gives the number of characters in a cell?",
+            "options": [
+                "LEN",
+                "COUNT",
+                "CHAR",
+                "TEXT"
+            ],
+            "correct": "LEN"
+        },
+        {
+            "question": "What does the CONCAT function do in Excel 365?",
+            "options": [
+                "Join multiple strings",
+                "Convert numbers to text",
+                "Split text",
+                "Filter values"
+            ],
+            "correct": "Join multiple strings"
+        },
+        {
+            "question": "Which shortcut is used to insert a new row in Excel?",
+            "options": [
+                "Ctrl + N",
+                "Ctrl + Shift + +",
+                "Ctrl + R",
+                "Ctrl + Alt + N"
+            ],
+            "correct": "Ctrl + Shift + +"
+        },
+        {
+            "question": "You have a list of names in lowercase. To convert them into uppercase, which function do you use?",
+            "options": [
+                "LOWER",
+                "UPPER",
+                "PROPER",
+                "CONCAT"
+            ],
+            "correct": "UPPER"
+        },
+        {
+            "question": "Which formula will return the smallest value in a range?",
+            "options": [
+                "MAX",
+                "MIN",
+                "SMALL",
+                "AVERAGE"
+            ],
+            "correct": "MIN"
+        },
+        {
+            "question": "Which function is used to remove extra spaces from text?",
+            "options": [
+                "CLEAN",
+                "SUBSTITUTE",
+                "TRIM",
+                "PROPER"
+            ],
+            "correct": "TRIM"
+        },
+        {
+            "question": "Which formula removes all non-printable characters from text?",
+            "options": [
+                "TRIM",
+                "CLEAN",
+                "SUBSTITUTE",
+                "PROPER"
+            ],
+            "correct": "CLEAN"
+        },
+        {
+            "question": "Which function extracts a substring from the middle of a text?",
+            "options": [
+                "LEFT()",
+                "RIGHT()",
+                "MID()",
+                "TEXT()"
+            ],
+            "correct": "MID()"
+        },
+        {
+            "question": "Which Excel shortcut key closes the active workbook?",
+            "options": [
+                "Ctrl + F4",
+                "Ctrl + W",
+                "Both a & b",
+                "Ctrl + Q"
+            ],
+            "correct": "Both a & b"
+        },
+        {
+            "question": "What does Ctrl + Z do in Excel?",
+            "options": [
+                "Save",
+                "Undo",
+                "Redo",
+                "Zoom"
+            ],
+            "correct": "Undo"
+        },
+        {
+            "question": "What is the shortcut to open the Format Cells dialog box?",
+            "options": [
+                "Ctrl + 1",
+                "Ctrl + F1",
+                "Alt + Enter",
+                "Shift + F3"
+            ],
+            "correct": "Ctrl + 1"
+        },
+        {
+            "question": "Your sheet has hundreds of rows. You want to quickly jump to the last row of data. Which shortcut will you use?",
+            "options": [
+                "Ctrl + End",
+                "Ctrl + Down Arrow",
+                "Ctrl + Shift + End",
+                "Ctrl + Tab"
+            ],
+            "correct": "Ctrl + Down Arrow"
+        }
+    ],
+    "excel_practical_tasks": [
+        {"task_id": 1, "description": "Apply the UPPER, LOWER, and PROPER functions to the data in column A of the Function sheet."},
+        {"task_id": 2, "description": "Sort column A in ascending order on the Sort sheet."},
+        {"task_id": 3, "description": "Replace 'Gentleman' with 'Doctor' in column A on the Replace sheet."},
+        {"task_id": 4, "description": "Concatenate columns A and B into column C on the Concatenate sheet."},
+        {"task_id": 5, "description": "Calculate the Sum, Average, Maximum, and Minimum values of column A in cells B2, C2, D2, and E2 respectively on the Sum & Average sheet."},
+        {"task_id": 6, "description": "Insert one row above Row 9, enter the data 'Joseph, 26, Doctor', and delete Column D."},
+        {"task_id": 7, "description": "Trim the text in column A, place the trimmed results in column B, and calculate their lengths in column C on the Trim & Length sheet."},
+        {"task_id": 8, "description": "Apply the LEFT and RIGHT functions to extract first letter from column A on the Text Functions sheet."},
+        {"task_id": 9, "description": "Count the total number of cells that are not empty in column A place the result in cell B2 on the Count Sheet."},
+        {"task_id": 10, "description": "Identify and remove duplicate values in column A using conditional formatting on the Duplicates sheet."}
+        ]
+}

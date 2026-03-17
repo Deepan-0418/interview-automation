@@ -1,0 +1,275 @@
+{
+    "sample_paragraphs": {
+        "easy": [
+            "The sun rises slowly behind the mountain. Birds sing softly as the day begins. A cool breeze moves the leaves on the trees. People walk their dogs in the park. Everyone feels calm and ready for a new day.",
+            "A cat sits on the warm windowsill. It watches the world outside with big eyes. The garden is full of colorful flowers. Children play and laugh in the distance. The day feels peaceful and bright.",
+            "Books are full of exciting stories. Reading takes you to new places. You can learn about faraway lands or brave heroes. A good book makes time pass quickly. It is a great way to relax."
+        ],
+        "medium": [
+            "Good health is the foundation of a happy and meaningful life. When you wake up early, it gives you a calm and quiet start that sets a positive tone for the entire day. Drinking enough water keeps your body hydrated, supports digestion, and improves concentration. Moving your body through activities like walking, stretching, or light exercise helps you feel refreshed and energetic. Eating clean and balanced meals gives your body the nutrients it needs to stay strong and active. Getting enough sleep allows your body and mind to recover and stay sharp. A healthy body supports a clear and peaceful mind, and both help you perform well in work, relationships, and daily responsibilities. Even just ten minutes of regular physical activity each day can lead to big improvements in your overall well-being over time.",
+            "Technology is changing every part of the way we live, learn, and work. From smartphones that keep us connected to smart homes that make life more convenient, modern tools are becoming a part of everyday routines. People can now speak with others across the world in seconds through video calls and messages. Learning has become easier with online platforms that offer lessons, courses, and tutorials anytime and anywhere. Tasks that once took hours can now be done in minutes using apps and automation. Technology saves time, helps people stay connected, and opens new doors for solving both old and new problems. In today’s fast-changing world, learning how to use technology wisely is not just useful, it is necessary for success and growth.",
+            "Wealth is not only about how much money you have, but also about your time, skills, and peace of mind. Saving even a small amount regularly can grow into a large amount over the years. Spending money wisely, investing early, and avoiding unnecessary debt are habits that build long-term financial security. True wealth means having the freedom to live on your own terms, enjoying good health, and building strong, meaningful relationships. It is about finding balance between earning, saving, and enjoying life. Building wealth is not about sudden luck or quick success, but about making smart, steady choices every day and staying committed to your goals.",
+            "Time management is an essential skill for being productive and living a balanced life. When you plan your day, set clear goals, and focus on important tasks, you can accomplish more in less time. Distractions like social media, unnecessary browsing, or multitasking can quietly consume hours without you noticing. Using tools such as calendars, reminders, and to-do lists helps keep you organized and on track. Taking short breaks between tasks prevents burnout and refreshes your mind. By managing your time effectively, you create space for work, rest, relationships, and personal growth. Time is one of our most valuable resources, and learning how to use it well leads to greater success and satisfaction."
+        ],
+        "hard": [
+            "Artificial Intelligence, or AI, is a powerful part of today's technology. It is now involved in many things we use daily, such as music recommendations, chat assistants, online shopping, and even driving cars. AI works by learning from large amounts of data and then making decisions or predictions based on that information. It is being used in healthcare to help doctors diagnose diseases, in education to support students, and in agriculture to improve farming methods. While AI can make life easier and more efficient, it also raises important questions about job security, data privacy, and human responsibility. Understanding how AI works helps us use it wisely and prepare for a future where it will continue to grow and influence our lives.",
+            "Philosophy encourages us to think deeply about life, purpose, and the nature of right and wrong. It invites us to ask questions such as What is the meaning of life or How should one live a good and honest life. These questions help shape our personal values and guide the decisions we make. Over centuries, many great thinkers have shared their ideas and reflections, offering different views on happiness, justice, and truth. However, philosophy is not just about reading books or studying history. It is a personal journey where each person explores their own beliefs and creates their own meaning. In a fast-moving and often confusing world, philosophy helps us stay thoughtful, calm, and wise.",
+            "Quantum computing represents a groundbreaking shift in computational technology, leveraging principles of quantum mechanics to process information. Unlike classical computers that use bits to represent data as 0s or 1s, quantum computers use qubits, which can exist in superpositions of states. This allows them to perform complex calculations at unprecedented speeds for specific problems, such as factoring large numbers or simulating molecular structures. However, building stable quantum computers requires overcoming challenges like error correction and environmental interference. As research advances, quantum computing could revolutionize fields like cryptography, artificial intelligence, and drug discovery, but it also demands new approaches to programming and security.",
+            "Globalization has transformed the world by connecting economies, cultures, and societies like never before. It enables the rapid exchange of goods, services, and ideas across borders, driven by advancements in technology and communication. However, it also creates challenges, such as economic inequality, cultural homogenization, and environmental strain. Balancing the benefits of global trade and connectivity with sustainable practices requires careful policy-making and international cooperation. Understanding globalization’s impact involves analyzing complex systems of trade agreements, labor markets, and cultural exchanges, all while addressing ethical questions about fairness and responsibility in an interconnected world."
+        ],
+        "handwritten_texts": [
+            {"image": "handwritten_text1.png", "text": "Sarah Jane"},
+            {"image": "handwritten_text2.png", "text": "Scholar"},
+            {"image": "handwritten_text3.png", "text": "Dorothy"},
+            {"image": "handwritten_text4.png", "text": "Patricia Anne"},
+            {"image": "handwritten_text5.png", "text": "John Buchanan"},
+            {"image": "handwritten_text6.png", "text": "Seward"},
+            {"image": "handwritten_text7.png", "text": "Johnson"},
+            {"image": "handwritten_text8.png", "text": "Ozanne"},
+            {"image": "handwritten_text9.png", "text": "Blackwood"},
+            {"image": "handwritten_text10.png", "text": "Marshall"},
+            {"image": "handwritten_text11.png", "text": "Amos"},
+            {"image": "handwritten_text12.png", "text": "Elizabeth"},
+            {"image": "handwritten_text13.png", "text": "Hawksworth"},
+            {"image": "handwritten_text14.png", "text": "Springthorpe"},
+            {"image": "handwritten_text15.png", "text": "Josephine"},
+            {"image": "handwritten_text16.png", "text": "McAloone"},
+            {"image": "handwritten_text17.png", "text": "Harrison"},
+            {"image": "handwritten_text18.png", "text": "Isaac"},
+            {"image": "handwritten_text19.png", "text": "Mary Louisa"},
+            {"image": "handwritten_text20.png", "text": "Tailor"},
+            {"image": "handwritten_text21.png", "text": "Mariner"},
+            {"image": "handwritten_text22.png", "text": "Carpenter"},
+            {"image": "handwritten_text23.png", "text": "Ship Wright"},
+            {"image": "handwritten_text24.png", "text": "News Agent"},
+            {"image": "handwritten_text25.png", "text": "Rivetter"},
+            {"image": "handwritten_text26.png", "text": "Lancaster"},
+            {"image": "handwritten_text27.png", "text": "Barrow"},
+            {"image": "handwritten_text28.png", "text": "Northscale"},
+            {"image": "handwritten_text29.png", "text": "Park Street"},
+            {"image": "handwritten_text30.png", "text": "Naylor"}
+        ],
+        "excel_quiz_questions": [
+            {
+                "question": "What is the default file extension of an Excel 365 workbook?",
+                "options": [".xls", ".xlsx", ".xlsm", ".csv"],
+                "correct": ".xlsx"
+            },
+            {
+                "question": "What function would you use to calculate the average of a range of cells in Excel?",
+                "options": ["SUM", "AVERAGE", "MEAN", "TOTAL"],
+                "correct": "AVERAGE"
+            },
+            {
+                "question": "What does the Fill Handle do in Excel?",
+                "options": ["Zoom in and out", "Add borders to cells", "Copy or auto-fill data", "Merge cells"],
+                "correct": "Copy or auto-fill data"
+            },
+            {
+                "question": "Which symbol is used to fix a cell reference in Excel?",
+                "options": ["&", "#", "$", "@"],
+                "correct": "$"
+            },
+            {
+                "question": "What will be the result of =LEN(\"Excel Quiz\")?",
+                "options": ["9", "10", "8", "11"],
+                "correct": "10"
+            },
+            {
+                "question": "Which function will return the current date in Excel?",
+                "options": ["NOW()", "DATE()", "CURRENTDATE()", "TODAY()"],
+                "correct": "TODAY()"
+            },
+            {
+                "question": "What is the shortcut to insert a new worksheet in Excel?",
+                "options": ["Ctrl + N", "Shift + F11", "Alt + W", "Ctrl + T"],
+                "correct": "Shift + F11"
+            },
+            {
+                "question": "Which chart is best to show trends over time?",
+                "options": ["Pie Chart", "Bar Chart", "Line Chart", "Column Chart"],
+                "correct": "Line Chart"
+            },
+            {
+                "question": "Which function counts only numeric values in a range?",
+                "options": ["COUNTA()", "COUNTIF()", "COUNT()", "SUM()"],
+                "correct": "COUNT()"
+            },
+            {
+                "question": "How can you prevent editing in a worksheet?",
+                "options": ["Hide the sheet", "Lock cells and protect the sheet", "Change cell color", "Use data validation"],
+                "correct": "Lock cells and protect the sheet"
+            },
+            {
+                "question": "What is the shortcut for AutoSum in Excel?",
+                "options": ["Ctrl + A", "Alt + =", "Ctrl + S", "Shift + ="],
+                "correct": "Alt + ="
+            },
+            {
+                "question": "What does the VLOOKUP function do?",
+                "options": ["Validates user input", "Looks up values vertically in a table", "Displays charts", "Filters data"],
+                "correct": "Looks up values vertically in a table"
+            },
+            {
+                "question": "Which feature allows you to apply a condition and highlight cells?",
+                "options": ["Data Filter", "Conditional Formatting", "Cell Styles", "Smart Lookup"],
+                "correct": "Conditional Formatting"
+            },
+            {
+                "question": "What is the maximum number of rows in Excel 365?",
+                "options": ["65,536", "1,048,576", "100,000", "500,000"],
+                "correct": "1,048,576"
+            },
+            {
+                "question": "What does the CONCATENATE function do?",
+                "options": ["Calculates average", "Sorts text", "Joins text strings", "Finds duplicates"],
+                "correct": "Joins text strings"
+            },
+            {
+                "question": "Which shortcut key combination is used to insert the current date in a cell?",
+                "options": ["Ctrl + D", "Ctrl + ;", "Ctrl + T", "Ctrl + Shift + :"],
+                "correct": "Ctrl + ;"
+            },
+            {
+                "question": "Which Excel feature helps to summarize large datasets with totals, averages, and counts?",
+                "options": ["Data Validation", "VLOOKUP", "Pivot Table", "Conditional Formatting"],
+                "correct": "Pivot Table"
+            },
+            {
+                "question": "Which function is used to count only non-empty cells?",
+                "options": ["COUNT()", "COUNTA()", "COUNTBLANK()", "COUNTIF()"],
+                "correct": "COUNTA()"
+            },
+            {
+                "question": "Which function can retrieve data based on multiple criteria?",
+                "options": ["IF()", "VLOOKUP()", "INDEX()", "SUMIFS()"],
+                "correct": "SUMIFS()"
+            },
+            {
+                "question": "Which keyboard shortcut is used to save an Excel file?",
+                "options": ["Ctrl + S", "Ctrl + C", "Ctrl + V", "Ctrl + X"],
+                "correct": "Ctrl + S"
+            },
+            {
+                "question": "Which Excel function removes extra spaces from text except single spaces between words?",
+                "options": ["REMOVE()", "TRIM()", "CLEAN()", "SPACE()"],
+                "correct": "TRIM()"
+            },
+            {
+                "question": "What does the Freeze Panes option do in Excel?",
+                "options": ["Lock cells", "Keep headers visible while scrolling", "Protect the sheet", "Hide columns"],
+                "correct": "Keep headers visible while scrolling"
+            },
+            {
+                "question": "Which tab in Excel contains the 'Conditional Formatting' option?",
+                "options": ["Insert", "Data", "Home", "Review"],
+                "correct": "Home"
+            },
+            {
+                "question": "Which function can be used to extract the year from a date?",
+                "options": ["YEAR()", "DATEVALUE()", "DAY()", "TEXT()"],
+                "correct": "YEAR()"
+            },
+            {
+                "question": "Which Excel tool allows you to filter records based on criteria?",
+                "options": ["Sort", "Filter", "PivotTable", "Chart"],
+                "correct": "Filter"
+            },
+            {
+                "question": "What does the COUNTIF function do?",
+                "options": ["Counts all cells", "Counts non-empty cells", "Counts cells that meet a condition", "Counts blank cells"],
+                "correct": "Counts cells that meet a condition"
+            },
+            {
+                "question": "What does the CONCAT function do in Excel 365?",
+                "options": ["Join multiple strings", "Convert numbers to text", "Split text", "Filter values"],
+                "correct": "Join multiple strings"
+            },
+            {
+                "question": "Which of the following can be used to combine data from multiple sheets?",
+                "options": ["Macros", "Hyperlinks", "Consolidate", "Data Table"],
+                "correct": "Consolidate"
+            },
+            {
+                "question": "Which Excel function returns the largest number in a range?",
+                "options": ["LARGE()", "MAX()", "BIGGEST()", "TOP()"],
+                "correct": "MAX()"
+            },
+            {
+                "question": "Which function returns the current time in Excel?",
+                "options": ["TODAY()", "NOW()", "TIME()", "CURRENT()"],
+                "correct": "NOW()"
+            },
+            {
+                "question": "Which Excel feature allows you to restrict data entry to certain rules?",
+                "options": ["Conditional Formatting", "Data Validation", "Protect Sheet", "Filter"],
+                "correct": "Data Validation"
+            },
+            {
+                "question": "Which function returns the position of a value in a range?",
+                "options": ["LOOKUP()", "MATCH()", "SEARCH()", "INDEX()"],
+                "correct": "MATCH()"
+            },
+            {
+                "question": "Which function extracts a substring from the middle of a text?",
+                "options": ["LEFT()", "RIGHT()", "MID()", "TEXT()"],
+                "correct": "MID()"
+            },
+            {
+                "question": "How do you start a formula in Excel?",
+                "options": ["#", "=", "+", "/"],
+                "correct": "="
+            },
+            {
+                "question": "Which function will combine the functions of INDEX and MATCH?",
+                "options": ["VLOOKUP()", "XLOOKUP()", "INDIRECT()", "FILTER()"],
+                "correct": "XLOOKUP()"
+            },
+            {
+                "question": "What happens if you copy a formula with relative references (like A1 + B1) to the next row?",
+                "options": ["It stays the same", "It refers to absolute cells", "It updates to A2 + B2", "It shows error"],
+                "correct": "It updates to A2 + B2"
+            },
+            {
+                "question": "What does Ctrl + Z do in Excel?",
+                "options": ["Save", "Undo", "Redo", "Zoom"],
+                "correct": "Undo"
+            },
+            {
+                "question": "Which chart type is best to compare percentages of a whole?",
+                "options": ["Column Chart", "Pie Chart", "Line Chart", "Scatter Plot"],
+                "correct": "Pie Chart"
+            },
+            {
+                "question": "What is the shortcut to open the Format Cells dialog box?",
+                "options": ["Ctrl + 1", "Ctrl + F1", "Alt + Enter", "Shift + F3"],
+                "correct": "Ctrl + 1"
+            },
+            {
+                "question": "What is the maximum number of columns in Excel 365?",
+                "options": ["256", "1024", "16,384", "10,000"],
+                "correct": "16,384"
+            },
+            {
+                "question": "What does the function ISBLANK() return?",
+                "options": ["Cell content", "TRUE if cell is empty", "Cell type", "Error message"],
+                "correct": "TRUE if cell is empty"
+            },
+            {
+                "question": "What is the purpose of Flash Fill in Excel?",
+                "options": ["Format cells", "Apply data validation", "Automatically fill values based on pattern", "Remove duplicates"],
+                "correct": "Automatically fill values based on pattern"
+            },
+            {
+                "question": "What does the function LEFT(\"Excel\", 2) return?",
+                "options": ["Ex", "El", "Ec", "Ce"],
+                "correct": "Ex"
+            },
+            {
+                "question": "Which function returns the number of characters in a text string?",
+                "options": ["LEN()", "COUNT()", "CHAR()", "TEXT()"],
+                "correct": "LEN()"
+            }
+        ]
+    }
+}

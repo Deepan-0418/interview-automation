@@ -1,0 +1,11 @@
+{% extends "base.html" %}
+{% block title %}Confirmation{% endblock %}
+{% block content %}
+    <h1 class="fade-in">Sign-Up Confirmation</h1>
+    <p class="fade-in delay-1">Thank you for signing up!</p>
+    <div class="fade-in delay-1">
+        <p><strong>Name:</strong> {{ name }}</p>
+        <p><strong>Sign-up Date:</strong> {{ signup_date }}</p>
+    </div>
+    <a href="{{ url_for('typing_test') }}" class="btn fade-in delay-2">Take Typing Test</a>
+{% endblock %}

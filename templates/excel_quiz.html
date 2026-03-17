@@ -1,0 +1,155 @@
+{% extends "base.html" %}
+{% block title %}Excel Quiz{% endblock %}
+{% block content %}
+<div class="container quiz-container">
+    <h1 class="fade-in">Excel Quiz</h1>
+    <p class="fade-in delay-1">Hello, {{ name }}! Choose the correct answer from the options below.</p>
+
+    {% if completed %}
+    <div class="card fade-in delay-2">
+        <p class="result correct">You have already completed the Excel quiz.</p>
+        <a href="{{ url_for('welcome') }}" class="btn fade-in delay-2">Back to Welcome</a>
+    </div>
+    {% else %}
+
+    <!-- Timer Bar -->
+    <div class="fade-in delay-1" style="position:sticky;top:0;z-index:100;background:#fff;
+        border-bottom:1px solid #e2e8f0;padding:12px 0 10px;margin-bottom:20px;">
+        <div style="display:flex;align-items:center;justify-content:space-between;
+            flex-wrap:wrap;gap:10px;">
+            <div style="display:flex;align-items:center;gap:10px;">
+                <span id="timerIcon" style="font-size:20px;">⏱️</span>
+                <div>
+                    <div style="font-size:11px;color:#64748b;font-weight:600;
+                        text-transform:uppercase;letter-spacing:.8px;">Time Remaining</div>
+                    <div id="timerDisplay" style="font-size:22px;font-weight:800;
+                        color:#0f172a;letter-spacing:1px;font-variant-numeric:tabular-nums;">
+                        10:00
+                    </div>
+                </div>
+            </div>
+            <div style="flex:1;min-width:160px;">
+                <div style="height:8px;background:#f1f5f9;border-radius:99px;overflow:hidden;">
+                    <div id="timerBar" style="height:100%;width:100%;
+                        background:#22c55e;border-radius:99px;
+                        transition:width 1s linear, background 0.5s ease;"></div>
+                </div>
+                <div style="font-size:11px;color:#94a3b8;margin-top:4px;text-align:right;">
+                    Quiz auto-submits when time runs out
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="card quiz-card fade-in delay-2">
+        <form id="excelQuizForm" method="POST" action="{{ url_for('excel_quiz') }}" autocomplete="off">
+            {% for index, question in questions %}
+            <div class="quiz-question-card fade-in delay-{{ index * 0.2 + 0.2 }}">
+                <h3 class="quiz-question">Question {{ index + 1 }}: {{ question.question }}</h3>
+                <div class="quiz-options">
+                    {% for option in question.options %}
+                    <label class="quiz-option">
+                        <input type="radio" name="question_{{ index }}" value="{{ option }}" autocomplete="off">
+                        <span class="option-text">{{ option }}</span>
+                    </label>
+                    {% endfor %}
+                </div>
+            </div>
+            {% endfor %}
+            <button type="submit" class="btn quiz-submit-btn">Submit Quiz</button>
+            <div id="submission-loader" class="submission-loader"></div>
+        </form>
+    </div>
+    {% endif %}
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+    <div class="flash-messages">
+        {% for category, message in messages %}
+        <p class="alert alert-{{ 'success' if category == 'success' else 'error' }} fade-in delay-2">
+            {{ message }}
+        </p>
+        {% endfor %}
+    </div>
+    {% endif %}
+    {% endwith %}
+</div>
+
+{% if not completed %}
+<script>
+(function () {
+    const TOTAL_SECONDS = 10 * 60; // 10 minutes
+    let remaining = TOTAL_SECONDS;
+
+    const display  = document.getElementById('timerDisplay');
+    const bar      = document.getElementById('timerBar');
+    const icon     = document.getElementById('timerIcon');
+    const form     = document.getElementById('excelQuizForm');
+    const submitBtn = form ? form.querySelector('.quiz-submit-btn') : null;
+
+    function formatTime(s) {
+        const m = Math.floor(s / 60);
+        const sec = s % 60;
+        return `${m}:${sec.toString().padStart(2, '0')}`;
+    }
+
+    function updateBar(s) {
+        const pct = (s / TOTAL_SECONDS) * 100;
+        bar.style.width = pct + '%';
+
+        // Colour shifts: green → yellow → red
+        if (pct > 50) {
+            bar.style.background = '#22c55e';          // green
+            display.style.color  = '#0f172a';
+            icon.textContent     = '⏱️';
+        } else if (pct > 20) {
+            bar.style.background = '#f59e0b';          // amber
+            display.style.color  = '#92400e';
+            icon.textContent     = '⚠️';
+        } else {
+            bar.style.background = '#ef4444';          // red
+            display.style.color  = '#991b1b';
+            icon.textContent     = '🚨';
+            // Pulse effect in last 20%
+            display.style.animation = 'quizPulse 0.8s ease-in-out infinite';
+        }
+    }
+
+    // Inject pulse keyframe once
+    const style = document.createElement('style');
+    style.textContent = `
+        @keyframes quizPulse {
+            0%, 100% { opacity: 1; }
+            50%       { opacity: 0.45; }
+        }
+    `;
+    document.head.appendChild(style);
+
+    // Tick every second
+    const interval = setInterval(() => {
+        remaining--;
+        display.textContent = formatTime(remaining);
+        updateBar(remaining);
+
+        if (remaining <= 0) {
+            clearInterval(interval);
+            display.textContent = '0:00';
+            bar.style.width = '0%';
+            if (submitBtn) submitBtn.disabled = true;
+            // Auto-submit
+            if (form) form.submit();
+        }
+    }, 1000);
+
+    // Stop timer if user submits manually
+    if (form) {
+        form.addEventListener('submit', () => clearInterval(interval));
+    }
+
+    // Initial render
+    display.textContent = formatTime(remaining);
+    updateBar(remaining);
+})();
+</script>
+{% endif %}
+{% endblock %}
