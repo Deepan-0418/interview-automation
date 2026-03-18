@@ -594,7 +594,7 @@
         {"task_id": 4, "description": "Concatenate columns A and B into column C on the Concatenate sheet."},
         {"task_id": 5, "description": "Calculate the Sum, Average, Maximum, and Minimum values of column A in cells B2, C2, D2, and E2 respectively on the Sum & Average sheet."},
         {"task_id": 6, "description": "Insert one row above Row 9, enter the data 'Joseph, 26, Doctor', and delete Column D."},
-        {"task_id": 7, "description": "Trim the text in column A, place the trimmed results in column B, and calculate their lengths in column C on the Trim & Length sheet."},
+        {"task_id": 7, "description": "Trim the text in column A, place the trimmed results in column B, and calculate Column B lengths in column C on the Trim & Length sheet."},
         {"task_id": 8, "description": "Apply the LEFT and RIGHT functions to extract first letter from column A on the Text Functions sheet."},
         {"task_id": 9, "description": "Count the total number of cells that are not empty in column A place the result in cell B2 on the Count Sheet."},
         {"task_id": 10, "description": "Identify and remove duplicate values in column A using conditional formatting on the Duplicates sheet."}

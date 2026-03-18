@@ -100,7 +100,7 @@ with app.app_context():
 # ── Typing attempt config ──────────────────────────────────────
 ATTEMPT_CONFIG = [
     {'label': 'Warm-Up',       'difficulty': 'easy',   'time_limit': 300, 'scored': False},
-    {'label': 'First Attempt', 'difficulty': 'easy',   'time_limit': 300, 'scored': True},
+    {'label': 'First Attempt', 'difficulty': 'easy',   'time_limit': 120, 'scored': True},
     {'label': 'Second Attempt','difficulty': 'medium',  'time_limit': 120, 'scored': True},
     {'label': 'Third Attempt', 'difficulty': 'hard',    'time_limit': 120, 'scored': True},
 ]
