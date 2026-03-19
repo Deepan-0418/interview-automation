@@ -17,11 +17,11 @@
     <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));
         gap:var(--sp-3);margin-top:var(--sp-2);">
         {% set info = [
-            ('Name', name),
-            ('Sign-up Date', signup_date),
-            ('Location', session.location),
-            ('Distance', session.distance ~ ' km'),
-            ('Attempt', session.attempt_number),
+            ('Name',        name),
+            ('Sign-up Date',signup_date),
+            ('Location',    session.location),
+            ('Distance',    session.distance ~ ' km'),
+            ('Attempt',     session.attempt_number),
         ] %}
         {% for label, value in info %}
         <div style="background:var(--gray-50);border:1px solid var(--gray-150);
@@ -39,26 +39,31 @@
 </div>
 
 <!-- ── Score Summary Cards ─────────────────────────────── -->
-{% set hw_correct = handwritten_results | selectattr('status', 'equalto', 'Correct') | list | length %}
-{% set hw_total   = handwritten_results | length %}
-{% set hw_pct     = ((hw_correct / hw_total * 100) | round | int) if hw_total > 0 else 0 %}
-{% set quiz_pct   = ((excel_score / excel_total * 100) | round | int) if excel_total > 0 else 0 %}
-{% set prac_total = excel_sheet_scores.values() | sum if excel_sheet_scores else 0 %}
-{% set prac_pct   = ((prac_total / 10 * 100) | round | int) if excel_sheet_scores else 0 %}
+{% set hw_correct  = handwritten_results | selectattr('status', 'equalto', 'Correct') | list | length %}
+{% set hw_total    = handwritten_results | length %}
+{% set hw_pct      = ((hw_correct / hw_total * 100) | round | int) if hw_total > 0 else 0 %}
+{% set quiz_pct    = ((excel_score / excel_total * 100) | round | int) if excel_total > 0 else 0 %}
+{% set prac_total  = excel_sheet_scores.values() | sum if excel_sheet_scores else 0 %}
+{% set prac_pct    = ((prac_total / 10 * 100) | round | int) if excel_sheet_scores else 0 %}
+
+{# Typing pass: at least 2 of 3 attempts with WPM >= 25 AND Accuracy >= 90 #}
+{% set typing_pass_count = results | selectattr('wpm', 'ge', 25) | selectattr('accuracy', 'ge', 90) | list | length %}
+{% set typing_passed = typing_pass_count >= 2 %}
 
 <div class="fade-in delay-2" style="display:grid;
     grid-template-columns:repeat(auto-fit,minmax(200px,1fr));
     gap:var(--sp-4);margin-bottom:var(--sp-6);">
 
     {% set summary = [
-        ('⌨️', 'Typing Test', results | length ~ '/3 attempts', results | length >= 3),
-        ('✍️', 'Handwritten', hw_correct ~ '/' ~ hw_total ~ ' correct', hw_correct >= 8),
-        ('📊', 'Excel Quiz', excel_score ~ '/' ~ excel_total ~ ' correct', excel_score >= 7),
-        ('📁', 'Excel Practical', prac_total ~ '/10 sheets', prac_total >= 7),
+        ('⌨️', 'Typing Test',       results | length ~ '/3 attempts',         typing_passed),
+        ('✍️', 'Handwritten',       hw_correct ~ '/' ~ hw_total ~ ' correct', hw_correct >= 8),
+        ('📊', 'Excel Quiz',        excel_score ~ '/' ~ excel_total ~ ' correct', excel_score >= 7),
+        ('📁', 'Excel Practical',   prac_total ~ '/10 sheets',                prac_total >= 7),
     ] %}
+
     {% for icon, label, value, passed in summary %}
-    <div style="background:var(--gray-0);border:1px solid
-        {{ '#bbf7d1' if passed else '#fecdd0' }};
+    <div style="background:var(--gray-0);
+        border:1px solid {{ '#bbf7d1' if passed else '#fecdd0' }};
         border-radius:var(--r-xl);padding:var(--sp-5);
         box-shadow:var(--shadow-sm);">
         <div style="font-size:1.6rem;margin-bottom:var(--sp-2);">{{ icon }}</div>
@@ -85,6 +90,16 @@
 <!-- ── Typing Test Detail ──────────────────────────────── -->
 <div class="card fade-in delay-2">
     <h2>⌨️ Typing Test Results</h2>
+
+    <!-- Pass criteria note -->
+    <p style="font-size:var(--text-xs);color:var(--gray-400);
+        margin-bottom:var(--sp-4);margin-top:0;">
+        Pass criteria: WPM ≥ 25 and Accuracy ≥ 90% in at least 2 of 3 attempts.
+        <strong style="color:{{ 'var(--green-600)' if typing_passed else 'var(--red-600)' }};">
+            {{ typing_pass_count }}/3 attempt{{ 's' if typing_pass_count != 1 }} passed.
+        </strong>
+    </p>
+
     {% if results %}
     <div style="overflow-x:auto;">
         <table class="results-table">
@@ -95,11 +110,13 @@
                     <th>WPM</th>
                     <th>Accuracy</th>
                     <th>Time</th>
+                    <th>Result</th>
                     <th>Date</th>
                 </tr>
             </thead>
             <tbody>
                 {% for result in results %}
+                {% set attempt_passed = result.wpm >= 25 and result.accuracy >= 90 %}
                 <tr>
                     <td>
                         {% if result.attempt == 1 %}1st
@@ -111,6 +128,16 @@
                     <td><strong>{{ result.wpm }}</strong></td>
                     <td>{{ result.accuracy }}%</td>
                     <td>{{ result.time_limit // 60 }}:{{ '%02d' | format(result.time_limit % 60) }}</td>
+                    <td>
+                        <span style="display:inline-flex;align-items:center;gap:4px;
+                            font-size:var(--text-xs);font-weight:700;
+                            padding:2px 10px;border-radius:var(--r-full);
+                            background:{{ 'var(--green-100)' if attempt_passed else 'var(--red-100)' }};
+                            color:{{ 'var(--green-700)' if attempt_passed else 'var(--red-600)' }};
+                            border:1px solid {{ 'var(--green-200)' if attempt_passed else 'var(--red-200)' }};">
+                            {{ '✓ Pass' if attempt_passed else '✗ Fail' }}
+                        </span>
+                    </td>
                     <td style="color:var(--gray-400);font-size:var(--text-xs);">
                         {{ result.test_date }}
                     </td>
@@ -239,7 +266,8 @@
     </div>
     {% if excel_practical_file %}
     <p style="margin-top:var(--sp-4);font-size:var(--text-sm);color:var(--gray-400);">
-        📎 Submitted file: <code style="font-family:var(--font-mono);
+        📎 Submitted file:
+        <code style="font-family:var(--font-mono);
             background:var(--gray-100);padding:2px 6px;
             border-radius:var(--r-sm);font-size:var(--text-xs);">
             {{ excel_practical_file }}
