@@ -89,18 +89,22 @@ app.jinja_env.filters['timestamp'] = lambda _: str(int(time()))
 
 # ── Admin credentials ──────────────────────────────────────────
 # Username: set via ADMIN_USERNAME env var, defaults to 'admin'
-# Password: checked fresh at every login — defaults to today's date
-#           in YYYYMMDD format (e.g. 20260318), auto-updates daily.
-#           Override by setting ADMIN_PASSWORD env var on Render.
+# Password: checked fresh at every login — defaults to Admin@YYYYMMDD,
+#           auto-updates daily. Override via ADMIN_PASSWORD env var.
 ADMIN_USERNAME = os.environ.get('ADMIN_USERNAME', 'admin')
 
 def get_admin_password():
     """
-    Returns the admin password checked fresh on every login.
-    Default: today's date as YYYYMMDD — updates automatically at midnight.
-    Override: set the ADMIN_PASSWORD environment variable for a fixed password.
+    Returns the admin password, checked fresh on every login.
+    Default: 'Admin@YYYYMMDD' — updates automatically at midnight.
+    Override: set the ADMIN_PASSWORD environment variable.
     """
     return os.environ.get('ADMIN_PASSWORD', 'Admin@' + datetime.now().strftime('%Y%m%d'))
+
+# ── Signup gate password ───────────────────────────────────────
+# Candidates must enter this password before accessing the signup page.
+# Override via SIGNUP_PASSWORD env var on Render.
+SIGNUP_PASSWORD = os.environ.get('SIGNUP_PASSWORD', 'IATsbl@2026')
 
 # ── Initialize database ────────────────────────────────────────
 with app.app_context():
@@ -365,8 +369,27 @@ def welcome():
     return render_template('welcome.html')
 
 
+@app.route('/verify_signup_password', methods=['POST'])
+def verify_signup_password():
+    """
+    Called by the password gate modal on the welcome page.
+    Sets session['signup_authorized'] = True on success.
+    Password never exposed in HTML — checked server-side only.
+    """
+    password = request.form.get('password', '').strip()
+    if password == SIGNUP_PASSWORD:
+        session['signup_authorized'] = True
+        return jsonify({'success': True})
+    return jsonify({'success': False})
+
+
 @app.route('/signup', methods=['GET', 'POST'])
 def signup():
+    # Block direct access without passing the password gate
+    if not session.get('signup_authorized'):
+        flash('Please authenticate to access the sign-up page.', 'error')
+        return redirect(url_for('welcome'))
+
     if request.method == 'POST':
         name           = escape(request.form.get('name',           '').strip())
         location       = escape(request.form.get('location',       '').strip())
@@ -934,7 +957,7 @@ def download_results():
 def clear_session():
     session.clear()
     flash('Session cleared. Please sign up again.', 'info')
-    return redirect(url_for('signup'))
+    return redirect(url_for('welcome'))
 
 
 # ══════════════════════════════════════════════════════════════

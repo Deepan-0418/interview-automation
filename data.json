@@ -99,7 +99,7 @@
         },
         {
             "image": "handwritten_text19.png",
-            "text": "Mary Louisa"
+            "text": "Mary-Louisa"
         },
         {
             "image": "handwritten_text20.png",
@@ -115,7 +115,7 @@
         },
         {
             "image": "handwritten_text23.png",
-            "text": "Ship Wright"
+            "text": "Shipwright"
         },
         {
             "image": "handwritten_text24.png",
@@ -554,7 +554,7 @@
                 "Both a & b",
                 "Ctrl + Q"
             ],
-            "correct": "Both a & b"
+            "correct": "Ctrl + W"
         },
         {
             "question": "What does Ctrl + Z do in Excel?",

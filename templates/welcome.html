@@ -74,8 +74,6 @@
 
                 <!-- Step Number + Icon + Label -->
                 <div style="display:flex;flex-direction:column;gap:8px;width:100%;">
-
-                    <!-- Step Number Badge -->
                     <div style="
                         display:inline-flex;align-items:center;justify-content:center;
                         width:26px;height:26px;border-radius:50%;
@@ -87,13 +85,10 @@
                         {% endif %}">
                         {{ loop.index }}
                     </div>
-
-                    <!-- Icon + Label -->
                     <div style="display:flex;align-items:center;gap:8px;">
                         <span style="font-size:22px;">{{ icon }}</span>
                         <span style="font-weight:600;font-size:14px;color:#0f172a;">{{ label }}</span>
                     </div>
-
                 </div>
 
                 <!-- Status Badge -->
@@ -115,20 +110,18 @@
                 </div>
                 {% endif %}
 
-                <!-- Button — always at bottom -->
+                <!-- Button — only shown when not completed -->
+                {% if not completed %}
                 <a href="{{ link }}" style="
                     display:inline-flex;align-items:center;gap:6px;
                     padding:9px 16px;border-radius:8px;font-size:13px;font-weight:600;
                     text-decoration:none;transition:opacity 0.15s,transform 0.12s;
-                    {% if completed %}
-                    background:#f1f5f9;color:#475569;border:1px solid #e2e8f0;
-                    {% else %}
-                    background:#0f172a;color:#fff;border:1px solid #0f172a;
-                    {% endif %}"
+                    background:#0f172a;color:#fff;border:1px solid #0f172a;"
                     onmouseover="this.style.transform='translateY(-1px)'"
                     onmouseout="this.style.transform='translateY(0)'">
-                    {% if completed %}↩ Revisit{% else %}▶ Start{% endif %}
+                    ▶ Start
                 </a>
+                {% endif %}
 
             </div>
             {% endfor %}
@@ -153,8 +146,7 @@
                 display:inline-flex;align-items:center;gap:6px;
                 padding:10px 20px;border-radius:8px;
                 background:#16a34a;color:#fff;font-size:14px;font-weight:600;
-                text-decoration:none;border:none;
-                transition:opacity 0.15s;">
+                text-decoration:none;border:none;transition:opacity 0.15s;">
                 View Results →
             </a>
         </div>
@@ -169,7 +161,9 @@
             <p style="color:#64748b;margin-bottom:20px;font-size:15px;">
                 Please sign up to begin the interview process.
             </p>
-            <a href="{{ url_for('signup') }}" class="btn">Sign Up to Get Started</a>
+            <button onclick="showSignupGate()" class="btn">
+                Sign Up to Get Started
+            </button>
         </div>
 
     {% endif %}
@@ -185,6 +179,197 @@
     </div>
     {% endif %}
     {% endwith %}
-
 </div>
+
+<!-- ── Password Gate Modal ─────────────────────────────────── -->
+<div id="signupGateOverlay" style="
+    display:none;
+    position:fixed;inset:0;
+    background:rgba(8,14,56,0.55);
+    backdrop-filter:blur(5px);
+    z-index:2000;
+    align-items:center;
+    justify-content:center;">
+
+    <div id="signupGateBox" style="
+        background:#fff;
+        border:1px solid #e0e9ff;
+        border-radius:16px;
+        padding:36px 32px 28px;
+        max-width:380px;
+        width:90%;
+        box-shadow:0 24px 64px rgba(14,26,92,0.2);
+        text-align:center;
+        animation:popIn 0.2s ease;">
+
+        <!-- Icon -->
+        <div style="
+            width:52px;height:52px;border-radius:50%;
+            background:#e0e9ff;border:2px solid #c0d2ff;
+            display:inline-flex;align-items:center;justify-content:center;
+            font-size:22px;margin-bottom:16px;">
+            🔑
+        </div>
+
+        <!-- Title -->
+        <h3 style="
+            font-family:'DM Sans',sans-serif;
+            font-size:18px;font-weight:700;
+            color:#0e1a5c;margin-bottom:6px;">
+            Enter Access Password
+        </h3>
+        <p style="
+            font-size:13px;color:#64748b;
+            margin-bottom:22px;line-height:1.5;max-width:none;">
+            Please enter the password provided by the interviewer to proceed.
+        </p>
+
+        <!-- Password input -->
+        <div style="position:relative;margin-bottom:8px;">
+            <input
+                type="password"
+                id="signupGateInput"
+                placeholder="Enter password"
+                autocomplete="off"
+                autocorrect="off"
+                autocapitalize="off"
+                spellcheck="false"
+                style="
+                    width:100%;box-sizing:border-box;
+                    padding:11px 44px 11px 14px;
+                    border:1.5px solid #e2e8f0;border-radius:8px;
+                    font-family:'DM Sans',sans-serif;font-size:14px;
+                    color:#0f172a;background:#f8fafc;outline:none;
+                    transition:border-color 0.15s,box-shadow 0.15s;"
+                onfocus="this.style.borderColor='#14a89f';this.style.boxShadow='0 0 0 3px rgba(20,168,159,0.15)';this.style.background='#fff';"
+                onblur="this.style.borderColor='#e2e8f0';this.style.boxShadow='none';"
+                onkeydown="if(event.key==='Enter')verifySignupPassword();">
+            <!-- Show/hide toggle -->
+            <button type="button" onclick="toggleGatePassword()" style="
+                position:absolute;right:12px;top:50%;
+                transform:translateY(-50%);
+                background:none;border:none;cursor:pointer;
+                font-size:16px;padding:0;line-height:1;color:#94a3b8;">
+                <span id="gateEyeIcon">👁️</span>
+            </button>
+        </div>
+
+        <!-- Error message -->
+        <div id="signupGateError" style="
+            display:none;
+            font-size:12px;font-weight:600;color:#be123c;
+            background:#fff1f2;border:1px solid #fecdd3;
+            border-radius:6px;padding:7px 12px;
+            margin-bottom:4px;text-align:left;">
+            ❌ Incorrect password. Please try again.
+        </div>
+
+        <!-- Actions -->
+        <div style="display:flex;gap:10px;margin-top:18px;">
+            <button onclick="hideSignupGate()" style="
+                flex:1;padding:10px;border-radius:8px;
+                font-family:'DM Sans',sans-serif;
+                font-size:14px;font-weight:600;cursor:pointer;
+                background:#f1f3f8;color:#4d566e;
+                border:1px solid #dde1ec;transition:background 0.15s;">
+                Cancel
+            </button>
+            <button id="signupGateBtn" onclick="verifySignupPassword()" style="
+                flex:1;padding:10px;border-radius:8px;
+                font-family:'DM Sans',sans-serif;
+                font-size:14px;font-weight:600;cursor:pointer;
+                background:#0e1a5c;color:#fff;border:none;
+                transition:background 0.15s,opacity 0.15s;"
+                onmouseover="this.style.background='#172780'"
+                onmouseout="this.style.background='#0e1a5c'">
+                Continue →
+            </button>
+        </div>
+    </div>
+</div>
+
+<style>
+    @keyframes popIn {
+        from { transform: scale(0.94); opacity: 0; }
+        to   { transform: scale(1);   opacity: 1; }
+    }
+    @keyframes shake {
+        0%, 100% { transform: translateX(0); }
+        20%, 60% { transform: translateX(-6px); }
+        40%, 80% { transform: translateX(6px); }
+    }
+</style>
+
+<script>
+    function showSignupGate() {
+        const overlay = document.getElementById('signupGateOverlay');
+        overlay.style.display = 'flex';
+        document.getElementById('signupGateInput').value = '';
+        document.getElementById('signupGateError').style.display = 'none';
+        setTimeout(() => document.getElementById('signupGateInput').focus(), 80);
+    }
+
+    function hideSignupGate() {
+        document.getElementById('signupGateOverlay').style.display = 'none';
+    }
+
+    function verifySignupPassword() {
+        const input   = document.getElementById('signupGateInput');
+        const errorDiv = document.getElementById('signupGateError');
+        const btn     = document.getElementById('signupGateBtn');
+        const box     = document.getElementById('signupGateBox');
+
+        // Show loading state
+        btn.textContent = 'Checking…';
+        btn.disabled    = true;
+
+        fetch('{{ url_for("verify_signup_password") }}', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+            body: 'password=' + encodeURIComponent(input.value),
+        })
+        .then(r => r.json())
+        .then(data => {
+            if (data.success) {
+                // Correct — go to signup
+                window.location.href = '{{ url_for("signup") }}';
+            } else {
+                // Wrong — show error and shake
+                errorDiv.style.display = 'block';
+                input.style.borderColor = '#ef4444';
+                input.style.boxShadow   = '0 0 0 3px rgba(239,68,68,0.15)';
+                box.style.animation     = 'shake 0.4s ease';
+                setTimeout(() => { box.style.animation = ''; }, 400);
+                input.select();
+                btn.textContent = 'Continue →';
+                btn.disabled    = false;
+            }
+        })
+        .catch(() => {
+            btn.textContent = 'Continue →';
+            btn.disabled    = false;
+        });
+    }
+
+    function toggleGatePassword() {
+        const input = document.getElementById('signupGateInput');
+        const icon  = document.getElementById('gateEyeIcon');
+        const isHidden = input.type === 'password';
+        input.type       = isHidden ? 'text' : 'password';
+        icon.textContent = isHidden ? '🙈' : '👁️';
+    }
+
+    // Close on backdrop click
+    document.getElementById('signupGateOverlay').addEventListener('click', function(e) {
+        if (e.target === this) hideSignupGate();
+    });
+
+    // Reset error styling on typing
+    document.getElementById('signupGateInput').addEventListener('input', function() {
+        this.style.borderColor = '#14a89f';
+        this.style.boxShadow   = '0 0 0 3px rgba(20,168,159,0.15)';
+        document.getElementById('signupGateError').style.display = 'none';
+    });
+</script>
+
 {% endblock %}
