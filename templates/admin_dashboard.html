@@ -15,7 +15,6 @@
             padding: var(--sp-6) var(--sp-4);
         }
 
-        /* ── Top bar ────────────────────────────── */
         .admin-topbar {
             display: flex;
             align-items: center;
@@ -51,7 +50,6 @@
             font-family: var(--font-display);
             font-size: var(--text-2xl);
             font-weight: 400;
-            color: var(--navy-900);
             margin: 0;
             background: linear-gradient(135deg, var(--navy-900) 30%, var(--teal-700) 100%);
             -webkit-background-clip: text;
@@ -66,7 +64,6 @@
             flex-wrap: wrap;
         }
 
-        /* ── Section cards ──────────────────────── */
         .admin-section {
             background: var(--gray-0);
             border: 1px solid var(--gray-200);
@@ -78,9 +75,7 @@
             text-align: left;
         }
 
-        .admin-section:hover {
-            box-shadow: var(--shadow-md);
-        }
+        .admin-section:hover { box-shadow: var(--shadow-md); }
 
         .admin-section h2 {
             font-family: var(--font-body);
@@ -96,14 +91,44 @@
 
         .admin-section h2::after { display: none; }
 
-        /* ── Image grid ─────────────────────────── */
         #image-list {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
             gap: var(--sp-4);
         }
 
-        /* ── Floating controls ──────────────────── */
+        .file-status {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            font-size: var(--text-xs);
+            font-weight: 700;
+            padding: 3px 10px;
+            border-radius: var(--r-full);
+            white-space: nowrap;
+        }
+        .file-status.present {
+            background: var(--green-100);
+            color: var(--green-700);
+            border: 1px solid var(--green-200);
+        }
+        .file-status.missing {
+            background: var(--red-100);
+            color: var(--red-700);
+            border: 1px solid var(--red-200);
+        }
+
+        .file-info-row {
+            display: flex;
+            align-items: center;
+            gap: var(--sp-3);
+            margin-bottom: var(--sp-5);
+            padding: var(--sp-3) var(--sp-4);
+            background: var(--gray-50);
+            border: 1px solid var(--gray-200);
+            border-radius: var(--r-md);
+        }
+
         .admin-float {
             position: fixed;
             bottom: 20px;
@@ -149,7 +174,6 @@
             border: 1px solid var(--gray-200);
         }
 
-        /* ── Confirm overlay ────────────────────── */
         .confirm-overlay {
             display: none;
             position: fixed;
@@ -225,13 +249,12 @@
         @media (max-width: 640px) {
             .admin-section { padding: var(--sp-5); }
             .admin-topbar h1 { font-size: var(--text-xl); }
+            .file-info-row { flex-wrap: wrap; }
         }
     </style>
 </head>
 <body>
     <div class="container" style="max-width:900px;text-align:left;">
-
-        <!-- Top stripe (inherited from container::before) -->
 
         <!-- Top Bar -->
         <div class="admin-topbar">
@@ -265,7 +288,7 @@
             {% endif %}
         {% endwith %}
 
-        <!-- ── Edit data.json ──────────────────── -->
+        <!-- ── Edit data.json ──────────────────────────────── -->
         <div class="admin-section fade-in">
             <h2>📄 Edit data.json</h2>
             <form method="POST" action="{{ url_for('admin_dashboard') }}">
@@ -278,7 +301,7 @@
             </form>
         </div>
 
-        <!-- ── Upload Handwritten Image ─────────── -->
+        <!-- ── Upload Handwritten Image ───────────────────── -->
         <div class="admin-section fade-in delay-1">
             <h2>🖼️ Upload Handwritten Image</h2>
             <form method="POST" action="{{ url_for('admin_dashboard') }}"
@@ -304,7 +327,7 @@
             </form>
         </div>
 
-        <!-- ── Manage Images ─────────────────────── -->
+        <!-- ── Manage Images ──────────────────────────────── -->
         <div class="admin-section fade-in delay-2">
             <h2>🗂️ Manage Images
                 <span style="font-size:var(--text-xs);font-weight:500;
@@ -344,6 +367,133 @@
                         </p>
                     </div>
                 {% endif %}
+            </div>
+        </div>
+
+        <!-- ── Master Excel Solution ──────────────────────── -->
+        <div class="admin-section fade-in delay-2">
+            <h2>📊 Master Excel Solution</h2>
+
+            <!-- File status -->
+            <div class="file-info-row">
+                <span style="font-size:1.2rem;">📁</span>
+                <div style="flex:1;">
+                    <div style="font-size:var(--text-sm);font-weight:600;
+                        color:var(--gray-700);font-family:var(--font-mono);">
+                        master_excel_solution.xlsx
+                    </div>
+                    <div style="font-size:var(--text-xs);color:var(--gray-400);margin-top:2px;">
+                        Used to validate and score candidate Excel submissions.
+                    </div>
+                </div>
+                <span class="file-status {{ 'present' if master_excel_exists else 'missing' }}">
+                    {{ '✓ File present' if master_excel_exists else '✗ File missing' }}
+                </span>
+            </div>
+
+            {% if not master_excel_exists %}
+            <div class="alert alert-warning"
+                style="margin-bottom:var(--sp-4);font-size:var(--text-sm);">
+                ⚠️ No master solution file found. Candidates cannot submit
+                Excel files until you upload one.
+            </div>
+            {% endif %}
+
+            <!-- Upload form -->
+            <form method="POST"
+                action="{{ url_for('admin_upload_master_excel') }}"
+                enctype="multipart/form-data">
+                <div style="display:grid;grid-template-columns:1fr auto;
+                    gap:var(--sp-3);align-items:end;">
+                    <div class="form-group" style="margin-bottom:0;">
+                        <label class="label">
+                            {{ 'Replace' if master_excel_exists else 'Upload' }}
+                            Master Solution (.xlsx)
+                        </label>
+                        <input type="file" name="master_excel" accept=".xlsx" required>
+                        <p style="font-size:var(--text-xs);color:var(--gray-400);
+                            margin-top:var(--sp-1);">
+                            This file defines the correct answers for scoring.
+                            Uploading immediately replaces the current file.
+                        </p>
+                    </div>
+                    <button type="submit" class="btn"
+                        style="padding:0.6rem var(--sp-5);
+                            white-space:nowrap;margin-bottom:26px;">
+                        ⬆ Upload Master
+                    </button>
+                </div>
+            </form>
+        </div>
+
+        <!-- ── Candidate Excel Template ───────────────────── -->
+        <div class="admin-section fade-in delay-3">
+            <h2>📋 Candidate Excel Template</h2>
+
+            <!-- File status -->
+            <div class="file-info-row">
+                <span style="font-size:1.2rem;">📋</span>
+                <div style="flex:1;">
+                    <div style="font-size:var(--text-sm);font-weight:600;
+                        color:var(--gray-700);font-family:var(--font-mono);">
+                        excel_practical_template.xlsx
+                    </div>
+                    <div style="font-size:var(--text-xs);color:var(--gray-400);margin-top:2px;">
+                        Downloaded by candidates for the Excel Practical Test.
+                        Auto-regenerated from data.json on every app startup and data save.
+                    </div>
+                </div>
+                <span class="file-status {{ 'present' if template_excel_exists else 'missing' }}">
+                    {{ '✓ File present' if template_excel_exists else '✗ File missing' }}
+                </span>
+            </div>
+
+            <!-- Upload custom template -->
+            <form method="POST"
+                action="{{ url_for('admin_upload_excel_template') }}"
+                enctype="multipart/form-data"
+                style="margin-bottom:var(--sp-5);">
+                <div style="display:grid;grid-template-columns:1fr auto;
+                    gap:var(--sp-3);align-items:end;">
+                    <div class="form-group" style="margin-bottom:0;">
+                        <label class="label">
+                            {{ 'Replace' if template_excel_exists else 'Upload' }}
+                            Template (.xlsx)
+                        </label>
+                        <input type="file" name="excel_template" accept=".xlsx" required>
+                        <p style="font-size:var(--text-xs);color:var(--gray-400);
+                            margin-top:var(--sp-1);">
+                            Upload a custom template to override the auto-generated one.
+                        </p>
+                    </div>
+                    <button type="submit" class="btn"
+                        style="padding:0.6rem var(--sp-5);
+                            white-space:nowrap;margin-bottom:26px;">
+                        ⬆ Upload Template
+                    </button>
+                </div>
+            </form>
+
+            <!-- Regenerate from data.json -->
+            <div style="display:flex;align-items:center;gap:var(--sp-3);
+                padding:var(--sp-3) var(--sp-4);
+                background:var(--gray-50);border:1px solid var(--gray-150);
+                border-radius:var(--r-md);">
+                <div style="flex:1;">
+                    <div style="font-size:var(--text-sm);font-weight:600;
+                        color:var(--gray-700);margin-bottom:2px;">
+                        Auto-generate from data.json
+                    </div>
+                    <div style="font-size:var(--text-xs);color:var(--gray-400);">
+                        Rebuilds the template from the current task list.
+                        This will overwrite any manually uploaded template.
+                    </div>
+                </div>
+                <a href="{{ url_for('admin_regenerate_template') }}"
+                    class="btn btn-ghost"
+                    style="font-size:var(--text-sm);white-space:nowrap;">
+                    🔄 Regenerate Now
+                </a>
             </div>
         </div>
 

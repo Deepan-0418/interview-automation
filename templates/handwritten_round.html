@@ -33,6 +33,7 @@
 </div>
 
 {% else %}
+
 <!-- Timer -->
 <div class="fade-in delay-1" style="
     display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;
@@ -63,14 +64,16 @@
 </div>
 
 <div class="card fade-in delay-2">
-    <!-- Image display -->
+    <!-- Image display — served from /uploads/ route (user_dir) -->
     <div style="background:var(--gray-50);border:1px solid var(--gray-200);
         border-radius:var(--r-lg);padding:var(--sp-4);margin-bottom:var(--sp-5);
         text-align:center;min-height:160px;display:flex;
         align-items:center;justify-content:center;">
-        {% if image %}
-            <img src="{{ url_for('static', filename=image) }}?v={{ 'now'|timestamp }}"
-                alt="Handwritten Text" class="handwritten-image" id="current-image"
+        {% if image_url %}
+            <img src="{{ image_url }}?v={{ 'now'|timestamp }}"
+                alt="Handwritten Text"
+                class="handwritten-image"
+                id="current-image"
                 style="max-height:220px;width:auto;">
         {% else %}
             <p style="color:var(--gray-400);">No image available.</p>
@@ -104,48 +107,4 @@
 
 <a href="{{ url_for('welcome') }}" class="back-link fade-in delay-2">← Back to Welcome</a>
 
-<!-- Handwritten round timer script -->
-{% if not completed %}
-<script>
-(function(){
-    const TOTAL = 10 * 60;
-    let remaining = TOTAL;
-    const display = document.getElementById('hw-timer');
-    const bar     = document.getElementById('hw-timer-bar');
-    const icon    = document.getElementById('timerIcon');
-    const form    = document.getElementById('handwrittenForm');
-
-    function fmt(s){
-        return `${Math.floor(s/60)}:${String(s%60).padStart(2,'0')}`;
-    }
-
-    function tick(){
-        remaining--;
-        display.textContent = fmt(remaining);
-        const pct = (remaining / TOTAL) * 100;
-        bar.style.width = pct + '%';
-        if(pct > 50){
-            bar.style.background = 'linear-gradient(90deg,var(--teal-500),var(--teal-400))';
-            display.style.color  = 'var(--navy-900)';
-            icon.textContent     = '⏱️';
-        } else if(pct > 20){
-            bar.style.background = 'linear-gradient(90deg,var(--amber-500),var(--amber-400))';
-            display.style.color  = 'var(--amber-700)';
-            icon.textContent     = '⚠️';
-        } else {
-            bar.style.background = 'linear-gradient(90deg,var(--red-500),var(--red-400))';
-            display.style.color  = 'var(--red-600)';
-            icon.textContent     = '🚨';
-        }
-        if(remaining <= 0){
-            clearInterval(iv);
-            if(form) form.submit();
-        }
-    }
-
-    const iv = setInterval(tick, 1000);
-    if(form) form.addEventListener('submit', () => clearInterval(iv));
-})();
-</script>
-{% endif %}
 {% endblock %}

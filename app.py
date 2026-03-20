@@ -37,7 +37,7 @@ if getattr(sys, 'frozen', False):
         shutil.copytree(os.path.join(base_path, 'static'), writable_static)
 
 else:
-    # Normal Python — local dev or Render deployment
+    # Normal Python — local dev (VS Code) or Render deployment
     base_path = os.path.dirname(__file__)
 
     # DATA_ROOT: set to /data on Render (persistent disk), else use project root
@@ -45,20 +45,32 @@ else:
     user_dir  = data_root
 
     writable_data_json = os.path.join(data_root, 'data.json')
-    writable_static    = os.path.join(base_path, 'static')  # always use repo static
+    writable_static    = os.path.join(base_path, 'static')  # repo static for CSS/JS
 
-    # On first Render boot, /data/data.json won't exist — copy from repo
+    # On first boot, copy data.json to user_dir if it doesn't exist
     if not os.path.exists(writable_data_json):
         import shutil
         src = os.path.join(base_path, 'data.json')
         if os.path.exists(src):
             os.makedirs(os.path.dirname(writable_data_json), exist_ok=True)
             shutil.copy(src, writable_data_json)
+            logger.info(f"Copied data.json to user_dir on first boot.")
+
+    # On first boot, copy essential binary files to user_dir if missing
+    import shutil as _shutil
+    for _fname in ['master_excel_solution.xlsx', 'logo.png']:
+        _src  = os.path.join(base_path, 'static', _fname)
+        _dest = os.path.join(user_dir, _fname)
+        if not os.path.exists(_dest) and os.path.exists(_src):
+            _shutil.copy(_src, _dest)
+            logger.info(f"Copied {_fname} to user_dir on first boot.")
 
 # ── Flask app ──────────────────────────────────────────────────
 app = Flask(__name__, static_folder=writable_static, static_url_path='/static')
 app.config['SECRET_KEY']         = os.environ.get('SECRET_KEY', 'fallback-dev-key-change-this')
-app.config['UPLOAD_FOLDER']      = writable_static
+
+# All writable/uploaded files go to user_dir — persistent on both local and Render
+app.config['UPLOAD_FOLDER']      = user_dir
 app.config['ALLOWED_EXTENSIONS'] = {'png', 'jpg', 'jpeg', 'xlsx'}
 
 # ── Load data.json ─────────────────────────────────────────────
@@ -88,9 +100,6 @@ else:
 app.jinja_env.filters['timestamp'] = lambda _: str(int(time()))
 
 # ── Admin credentials ──────────────────────────────────────────
-# Username: set via ADMIN_USERNAME env var, defaults to 'admin'
-# Password: checked fresh at every login — defaults to Admin@YYYYMMDD,
-#           auto-updates daily. Override via ADMIN_PASSWORD env var.
 ADMIN_USERNAME = os.environ.get('ADMIN_USERNAME', 'admin')
 
 def get_admin_password():
@@ -102,13 +111,7 @@ def get_admin_password():
     return os.environ.get('ADMIN_PASSWORD', 'Admin@' + datetime.now().strftime('%Y%m%d'))
 
 # ── Signup gate password ───────────────────────────────────────
-# Candidates must enter this password before accessing the signup page.
-# Override via SIGNUP_PASSWORD env var on Render.
 SIGNUP_PASSWORD = os.environ.get('SIGNUP_PASSWORD', 'IATsbl@2026')
-
-# ── Initialize database ────────────────────────────────────────
-with app.app_context():
-    init_db()
 
 # ── Typing attempt config ──────────────────────────────────────
 ATTEMPT_CONFIG = [
@@ -129,7 +132,7 @@ def allowed_file(filename):
 
 
 def generate_excel_template():
-    """Generate an Excel template with task descriptions from EXCEL_PRACTICAL_TASKS."""
+    """Generate an Excel template from EXCEL_PRACTICAL_TASKS."""
     workbook = openpyxl.Workbook()
 
     sheet1  = workbook.active; sheet1.title = "Function"
@@ -175,6 +178,7 @@ def generate_excel_template():
 
     template_path = os.path.join(app.config['UPLOAD_FOLDER'], 'excel_practical_template.xlsx')
     workbook.save(template_path)
+    logger.info(f"Excel template saved to: {template_path}")
     return template_path
 
 
@@ -225,6 +229,50 @@ def validate_excel_against_master(user_file_path, master_file_path):
         return 0.0, {n: 0 for n in sheet_names}
 
 
+# ── Initialize database ────────────────────────────────────────
+with app.app_context():
+    init_db()
+
+# ── Generate Excel template on startup (only if missing) ───────
+# If admin has uploaded a custom template, it is preserved.
+# Admin can force regeneration via the dashboard.
+with app.app_context():
+    try:
+        template_path = os.path.join(app.config['UPLOAD_FOLDER'], 'excel_practical_template.xlsx')
+        if not os.path.exists(template_path):
+            if EXCEL_PRACTICAL_TASKS:
+                generate_excel_template()
+                logger.info("Excel template generated on startup (file was missing).")
+            else:
+                logger.warning("No EXCEL_PRACTICAL_TASKS — template not generated.")
+        else:
+            logger.info("Excel template already exists — skipping auto-generation on startup.")
+    except Exception as e:
+        logger.error(f"Failed to generate Excel template on startup: {e}")
+
+
+# ══════════════════════════════════════════════════════════════
+# FILE SERVING — uploaded files from user_dir
+# ══════════════════════════════════════════════════════════════
+
+@app.route('/uploads/<path:filename>')
+def uploaded_file(filename):
+    """
+    Serve any file from the writable UPLOAD_FOLDER (user_dir).
+    Used for handwritten images and any other admin-uploaded files.
+    This works on both local dev and Render since UPLOAD_FOLDER
+    always points to user_dir (persistent storage).
+    """
+    file_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+    if not os.path.exists(file_path):
+        # Fallback: try static folder (for committed files like logo)
+        fallback = os.path.join(writable_static, filename)
+        if os.path.exists(fallback):
+            return send_file(fallback)
+        return jsonify({'error': 'File not found'}), 404
+    return send_file(file_path)
+
+
 # ══════════════════════════════════════════════════════════════
 # ADMIN ROUTES
 # ══════════════════════════════════════════════════════════════
@@ -235,7 +283,6 @@ def admin_login():
         username = request.form.get('username', '').strip()
         password = request.form.get('password', '').strip()
 
-        # Password checked fresh on every login — updates automatically each day
         if username == ADMIN_USERNAME and password == get_admin_password():
             session['admin_logged_in'] = True
             flash('Login successful!', 'success')
@@ -282,6 +329,7 @@ def admin_dashboard():
             handwritten_text = request.form.get('handwritten_text')
             if file and allowed_file(file.filename) and handwritten_text:
                 filename  = secure_filename(file.filename)
+                # Save to user_dir (UPLOAD_FOLDER) — not static/
                 file_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
                 file.save(file_path)
                 with open(data_file_path, 'r', encoding='utf-8') as f:
@@ -318,15 +366,99 @@ def admin_dashboard():
     with open(data_file_path, 'r', encoding='utf-8') as f:
         data_json = json.load(f)
 
+    # List image files from user_dir
     image_files = [
         fn for fn in os.listdir(app.config['UPLOAD_FOLDER'])
-        if allowed_file(fn)
+        if allowed_file(fn) and fn.lower().endswith(('.png', '.jpg', '.jpeg'))
     ]
+
+    master_excel_exists = os.path.exists(
+        os.path.join(app.config['UPLOAD_FOLDER'], 'master_excel_solution.xlsx')
+    )
+    template_excel_exists = os.path.exists(
+        os.path.join(app.config['UPLOAD_FOLDER'], 'excel_practical_template.xlsx')
+    )
+
     return render_template(
         'admin_dashboard.html',
         data_json=json.dumps(data_json, indent=4),
         image_files=image_files,
+        master_excel_exists=master_excel_exists,
+        template_excel_exists=template_excel_exists,
     )
+
+
+@app.route('/admin_upload_master_excel', methods=['POST'])
+def admin_upload_master_excel():
+    """Upload or replace the master Excel solution file."""
+    if not session.get('admin_logged_in'):
+        flash('Please log in as admin.', 'error')
+        return redirect(url_for('admin_login'))
+
+    if 'master_excel' not in request.files:
+        flash('No file selected.', 'error')
+        return redirect(url_for('admin_dashboard'))
+
+    file = request.files['master_excel']
+    if file.filename == '' or not file.filename.endswith('.xlsx'):
+        flash('Please upload a valid .xlsx file.', 'error')
+        return redirect(url_for('admin_dashboard'))
+
+    try:
+        master_path = os.path.join(app.config['UPLOAD_FOLDER'], 'master_excel_solution.xlsx')
+        file.save(master_path)
+        flash('Master Excel solution uploaded successfully!', 'success')
+        logger.info(f"Master Excel solution updated at: {master_path}")
+    except Exception as e:
+        logger.error(f"Error uploading master Excel: {e}")
+        flash(f'Error uploading file: {str(e)}', 'error')
+
+    return redirect(url_for('admin_dashboard'))
+
+
+@app.route('/admin_upload_excel_template', methods=['POST'])
+def admin_upload_excel_template():
+    """Upload or replace the candidate Excel template file."""
+    if not session.get('admin_logged_in'):
+        flash('Please log in as admin.', 'error')
+        return redirect(url_for('admin_login'))
+
+    if 'excel_template' not in request.files:
+        flash('No file selected.', 'error')
+        return redirect(url_for('admin_dashboard'))
+
+    file = request.files['excel_template']
+    if file.filename == '' or not file.filename.endswith('.xlsx'):
+        flash('Please upload a valid .xlsx file.', 'error')
+        return redirect(url_for('admin_dashboard'))
+
+    try:
+        template_path = os.path.join(
+            app.config['UPLOAD_FOLDER'], 'excel_practical_template.xlsx'
+        )
+        file.save(template_path)
+        flash('Excel practical template uploaded successfully!', 'success')
+        logger.info(f"Excel practical template updated at: {template_path}")
+    except Exception as e:
+        logger.error(f"Error uploading Excel template: {e}")
+        flash(f'Error uploading file: {str(e)}', 'error')
+
+    return redirect(url_for('admin_dashboard'))
+
+
+@app.route('/admin_regenerate_template')
+def admin_regenerate_template():
+    """Manually regenerate the candidate Excel template from current task list."""
+    if not session.get('admin_logged_in'):
+        flash('Please log in as admin.', 'error')
+        return redirect(url_for('admin_login'))
+    try:
+        generate_excel_template()
+        flash('Excel template regenerated successfully!', 'success')
+    except Exception as e:
+        logger.error(f"Error regenerating template: {e}")
+        flash(f'Error regenerating template: {str(e)}', 'error')
+    return redirect(url_for('admin_dashboard'))
 
 
 @app.route('/admin_logout')
@@ -352,7 +484,8 @@ def admin_clear_session():
 def debug_static_files():
     if not session.get('admin_logged_in'):
         return jsonify({'error': 'Admin access required'}), 403
-    return jsonify({'static_files': os.listdir(app.config['UPLOAD_FOLDER'])})
+    return jsonify({'upload_folder': app.config['UPLOAD_FOLDER'],
+                    'files': os.listdir(app.config['UPLOAD_FOLDER'])})
 
 
 @app.route('/debug_tasks')
@@ -371,11 +504,6 @@ def welcome():
 
 @app.route('/verify_signup_password', methods=['POST'])
 def verify_signup_password():
-    """
-    Called by the password gate modal on the welcome page.
-    Sets session['signup_authorized'] = True on success.
-    Password never exposed in HTML — checked server-side only.
-    """
     password = request.form.get('password', '').strip()
     if password == SIGNUP_PASSWORD:
         session['signup_authorized'] = True
@@ -385,7 +513,6 @@ def verify_signup_password():
 
 @app.route('/signup', methods=['GET', 'POST'])
 def signup():
-    # Block direct access without passing the password gate
     if not session.get('signup_authorized'):
         flash('Please authenticate to access the sign-up page.', 'error')
         return redirect(url_for('welcome'))
@@ -475,7 +602,8 @@ def handwritten_round():
                 session.get('excel_practical_completed')):
             return redirect(url_for('thank_you'))
         return render_template('handwritten_round.html',
-                               name=name, signup_date=signup_date, completed=True)
+                               name=name, signup_date=signup_date,
+                               completed=True, image_url='')
 
     if not HANDWRITTEN_TEXTS:
         flash('No handwritten texts available.', 'error')
@@ -497,9 +625,14 @@ def handwritten_round():
     current_image    = selected_handwritten_texts[current_index]['image']
     session.modified = True
 
-    return render_template('handwritten_round.html',
-                           name=name, signup_date=signup_date,
-                           image=current_image, completed=False)
+    return render_template(
+        'handwritten_round.html',
+        name=name,
+        signup_date=signup_date,
+        image=current_image,
+        image_url=url_for('uploaded_file', filename=current_image),
+        completed=False,
+    )
 
 
 @app.route('/submit_handwritten', methods=['POST'])
@@ -533,12 +666,13 @@ def submit_handwritten():
     if next_index < len(selected_handwritten_texts):
         session['current_image_index'] = next_index
         next_image     = selected_handwritten_texts[next_index]['image']
-        next_image_url = url_for('static', filename=next_image, _external=True)
+        # Use uploaded_file route — works from user_dir on both local and Render
+        next_image_url = url_for('uploaded_file', filename=next_image, _external=True)
     else:
         session['handwritten_completed'] = True
         flash('All handwritten verifications completed!', 'success')
         next_image     = current['image']
-        next_image_url = url_for('static', filename=next_image, _external=True)
+        next_image_url = url_for('uploaded_file', filename=next_image, _external=True)
 
     session.modified = True
 
