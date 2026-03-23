@@ -54,7 +54,7 @@ else:
         if os.path.exists(src):
             os.makedirs(os.path.dirname(writable_data_json), exist_ok=True)
             shutil.copy(src, writable_data_json)
-            logger.info(f"Copied data.json to user_dir on first boot.")
+            logger.info("Copied data.json to user_dir on first boot.")
 
     # On first boot, copy essential binary files to user_dir if missing
     import shutil as _shutil
@@ -234,8 +234,8 @@ with app.app_context():
     init_db()
 
 # ── Generate Excel template on startup (only if missing) ───────
-# If admin has uploaded a custom template, it is preserved.
-# Admin can force regeneration via the dashboard.
+# Preserves any manually uploaded custom template.
+# To rebuild from tasks, use "Regenerate Now" in the dashboard.
 with app.app_context():
     try:
         template_path = os.path.join(app.config['UPLOAD_FOLDER'], 'excel_practical_template.xlsx')
@@ -259,8 +259,7 @@ with app.app_context():
 def uploaded_file(filename):
     """
     Serve any file from the writable UPLOAD_FOLDER (user_dir).
-    Used for handwritten images and any other admin-uploaded files.
-    This works on both local dev and Render since UPLOAD_FOLDER
+    Works on both local dev and Render since UPLOAD_FOLDER
     always points to user_dir (persistent storage).
     """
     file_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
@@ -305,6 +304,10 @@ def admin_dashboard():
     if request.method == 'POST':
 
         # ── Update data.json ───────────────────────────────────
+        # IMPORTANT: generate_excel_template() is intentionally NOT called here.
+        # Saving data.json updates paragraphs, questions, and tasks in memory only.
+        # The Excel template file is left untouched — preserving any custom uploaded file.
+        # To rebuild the template from the updated task list, use "Regenerate Now".
         if 'data_json' in request.form:
             try:
                 new_data = json.loads(request.form.get('data_json'))
@@ -316,7 +319,7 @@ def admin_dashboard():
                 HANDWRITTEN_TEXTS     = new_data.get('handwritten_texts',    [])
                 EXCEL_QUIZ_QUESTIONS  = new_data.get('excel_quiz_questions', [])
                 EXCEL_PRACTICAL_TASKS = new_data.get('excel_practical_tasks',[])
-                generate_excel_template()
+                # ✅ Template is NOT regenerated here — uploaded custom file is preserved
                 flash('data.json updated successfully!', 'success')
             except json.JSONDecodeError:
                 flash('Invalid JSON format.', 'error')
@@ -329,7 +332,6 @@ def admin_dashboard():
             handwritten_text = request.form.get('handwritten_text')
             if file and allowed_file(file.filename) and handwritten_text:
                 filename  = secure_filename(file.filename)
-                # Save to user_dir (UPLOAD_FOLDER) — not static/
                 file_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
                 file.save(file_path)
                 with open(data_file_path, 'r', encoding='utf-8') as f:
@@ -366,7 +368,6 @@ def admin_dashboard():
     with open(data_file_path, 'r', encoding='utf-8') as f:
         data_json = json.load(f)
 
-    # List image files from user_dir
     image_files = [
         fn for fn in os.listdir(app.config['UPLOAD_FOLDER'])
         if allowed_file(fn) and fn.lower().endswith(('.png', '.jpg', '.jpeg'))
@@ -448,13 +449,13 @@ def admin_upload_excel_template():
 
 @app.route('/admin_regenerate_template')
 def admin_regenerate_template():
-    """Manually regenerate the candidate Excel template from current task list."""
+    """Explicitly regenerate the candidate Excel template from current task list."""
     if not session.get('admin_logged_in'):
         flash('Please log in as admin.', 'error')
         return redirect(url_for('admin_login'))
     try:
         generate_excel_template()
-        flash('Excel template regenerated successfully!', 'success')
+        flash('Excel template regenerated successfully from task list!', 'success')
     except Exception as e:
         logger.error(f"Error regenerating template: {e}")
         flash(f'Error regenerating template: {str(e)}', 'error')
@@ -484,13 +485,51 @@ def admin_clear_session():
 def debug_static_files():
     if not session.get('admin_logged_in'):
         return jsonify({'error': 'Admin access required'}), 403
-    return jsonify({'upload_folder': app.config['UPLOAD_FOLDER'],
-                    'files': os.listdir(app.config['UPLOAD_FOLDER'])})
+    return jsonify({
+        'upload_folder': app.config['UPLOAD_FOLDER'],
+        'files':         os.listdir(app.config['UPLOAD_FOLDER']),
+    })
 
 
 @app.route('/debug_tasks')
 def debug_tasks():
     return jsonify({'excel_practical_tasks': EXCEL_PRACTICAL_TASKS})
+
+
+@app.route('/debug_paths')
+def debug_paths():
+    upload_folder   = app.config['UPLOAD_FOLDER']
+    template_path   = os.path.join(upload_folder, 'excel_practical_template.xlsx')
+    static_template = os.path.join(writable_static, 'excel_practical_template.xlsx')
+    return jsonify({
+        'UPLOAD_FOLDER':         upload_folder,
+        'writable_static':       writable_static,
+        'template_in_upload':    os.path.exists(template_path),
+        'template_in_static':    os.path.exists(static_template),
+        'template_upload_mtime': str(datetime.fromtimestamp(os.path.getmtime(template_path))) if os.path.exists(template_path) else 'missing',
+        'template_static_mtime': str(datetime.fromtimestamp(os.path.getmtime(static_template))) if os.path.exists(static_template) else 'missing',
+    })
+
+
+@app.route('/debug_template_info')
+def debug_template_info():
+    template_path = os.path.join(app.config['UPLOAD_FOLDER'], 'excel_practical_template.xlsx')
+    if not os.path.exists(template_path):
+        return jsonify({'error': 'Template file not found'})
+    wb  = openpyxl.load_workbook(template_path)
+    ws  = wb.active
+    cells = {}
+    for row in range(1, 4):
+        for col in range(1, 3):
+            cell = ws.cell(row=row, column=col)
+            cells[f'{cell.coordinate}'] = str(cell.value)
+    return jsonify({
+        'template_path': template_path,
+        'file_size_kb':  round(os.path.getsize(template_path) / 1024, 2),
+        'modified_time': str(datetime.fromtimestamp(os.path.getmtime(template_path))),
+        'sheet_names':   wb.sheetnames,
+        'first_cells':   cells,
+    })
 
 
 # ══════════════════════════════════════════════════════════════
@@ -666,7 +705,6 @@ def submit_handwritten():
     if next_index < len(selected_handwritten_texts):
         session['current_image_index'] = next_index
         next_image     = selected_handwritten_texts[next_index]['image']
-        # Use uploaded_file route — works from user_dir on both local and Render
         next_image_url = url_for('uploaded_file', filename=next_image, _external=True)
     else:
         session['handwritten_completed'] = True
@@ -979,7 +1017,12 @@ def download_excel_template():
         if attempt:   parts.append(attempt.replace(' ', ''))
 
         download_name = '_'.join(parts) + '.xlsx'
-        return send_file(template_path, as_attachment=True, download_name=download_name)
+
+        response = send_file(template_path, as_attachment=True, download_name=download_name)
+        response.headers['Cache-Control'] = 'no-store, no-cache, must-revalidate, max-age=0'
+        response.headers['Pragma']        = 'no-cache'
+        response.headers['Expires']       = '0'
+        return response
 
     except Exception as e:
         logger.error(f"Error serving Excel template: {e}")
