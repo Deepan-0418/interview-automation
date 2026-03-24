@@ -1,4 +1,5 @@
 from flask import Flask, render_template, request, redirect, url_for, flash, send_file, session, jsonify
+from flask_session import Session
 from datetime import datetime
 from db import init_db, insert_user, insert_typing_result
 from pdf_utils import generate_typing_test_pdf, generate_error_report_pdf
@@ -72,6 +73,19 @@ app.config['SECRET_KEY']         = os.environ.get('SECRET_KEY', 'fallback-dev-ke
 # All writable/uploaded files go to user_dir — persistent on both local and Render
 app.config['UPLOAD_FOLDER']      = user_dir
 app.config['ALLOWED_EXTENSIONS'] = {'png', 'jpg', 'jpeg', 'xlsx'}
+
+# ── Server-side session config ─────────────────────────────────
+# Stores session data on the filesystem instead of in the browser cookie.
+# This avoids the 4096-byte browser cookie size limit which was causing
+# the Set-Cookie header to be silently dropped after large handwritten
+# sessions. The cookie now only holds a small session ID.
+app.config['SESSION_TYPE']           = 'filesystem'
+app.config['SESSION_FILE_DIR']       = os.path.join(user_dir, 'flask_sessions')
+app.config['SESSION_FILE_THRESHOLD'] = 500   # max number of session files on disk
+app.config['SESSION_PERMANENT']      = False
+app.config['SESSION_USE_SIGNER']     = True
+os.makedirs(app.config['SESSION_FILE_DIR'], exist_ok=True)
+Session(app)
 
 # ── Load data.json ─────────────────────────────────────────────
 data_file_path = writable_data_json
@@ -304,10 +318,10 @@ def admin_dashboard():
     if request.method == 'POST':
 
         # ── Update data.json ───────────────────────────────────
-        # IMPORTANT: generate_excel_template() is intentionally NOT called here.
-        # Saving data.json updates paragraphs, questions, and tasks in memory only.
-        # The Excel template file is left untouched — preserving any custom uploaded file.
-        # To rebuild the template from the updated task list, use "Regenerate Now".
+        # NOTE: generate_excel_template() is intentionally NOT called here.
+        # Saving data.json only updates paragraphs, questions and task list
+        # in memory. The Excel template file is preserved as-is.
+        # To rebuild the template from tasks, use "Regenerate Now" button.
         if 'data_json' in request.form:
             try:
                 new_data = json.loads(request.form.get('data_json'))
