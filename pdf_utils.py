@@ -11,10 +11,18 @@ import textwrap
 import os
 import sys
 import logging
+import pytz
 
 # ── Logging ────────────────────────────────────────────────────
 logging.basicConfig(level=logging.DEBUG)
 logger = logging.getLogger(__name__)
+
+# ── Timezone ───────────────────────────────────────────────────
+IST = pytz.timezone('Asia/Kolkata')
+
+def now_ist():
+    """Return current datetime string in IST — correct on both local and Render."""
+    return datetime.now(IST).strftime('%Y-%m-%d %H:%M:%S IST')
 
 # ── Base path (PyInstaller or normal) ─────────────────────────
 if getattr(sys, 'frozen', False):
@@ -23,12 +31,23 @@ else:
     base_path = os.path.dirname(__file__)
 
 # ── Logo path ──────────────────────────────────────────────────
-LOGO_PATH = os.path.join(base_path, 'static', 'logo.png')
-logger.debug(f"Attempting to access logo at: {LOGO_PATH}")
-if not os.path.exists(LOGO_PATH):
-    logger.error(f"Logo file not found at: {LOGO_PATH}")
-else:
-    logger.info(f"Logo file found at: {LOGO_PATH}")
+# Check user_dir first (where app.py copies logo.png on first boot),
+# then fall back to static/ for environments where it may still live.
+def _find_logo():
+    upload_folder = os.environ.get('DATA_ROOT', base_path)
+    candidates = [
+        os.path.join(upload_folder, 'logo.png'),        # user_dir — VS Code & Render
+        os.path.join(base_path, 'static', 'logo.png'),  # legacy static/ location
+        os.path.join(base_path, 'logo.png'),             # project root fallback
+    ]
+    for path in candidates:
+        if os.path.exists(path):
+            logger.info(f"Logo found at: {path}")
+            return path
+    logger.error("Logo not found in any expected location.")
+    return None
+
+LOGO_PATH = _find_logo()
 
 # ── Attempt label helper ───────────────────────────────────────
 ATTEMPT_LABELS = {
@@ -55,8 +74,8 @@ def generate_typing_test_pdf(
         .strip().replace(' ', '_')
     )
     try:
-        signup_date_obj      = datetime.strptime(signup_date, '%Y-%m-%d %H:%M:%S')
-        sanitized_date       = signup_date_obj.strftime('%Y%m%d_%H%M%S')
+        signup_date_obj       = datetime.strptime(signup_date, '%Y-%m-%d %H:%M:%S')
+        sanitized_date        = signup_date_obj.strftime('%Y%m%d_%H%M%S')
         formatted_signup_date = signup_date_obj.strftime('%d %B %Y')
     except ValueError:
         sanitized_date        = 'unknown_date'
@@ -104,12 +123,13 @@ def generate_typing_test_pdf(
     def add_header(c, doc):
         c.saveState()
         try:
+            # Generated time in IST — accurate on both local and Render
             c.setFont('Helvetica', 8)
             c.drawString(
                 0.5*inch, letter[1] - 0.4*inch,
-                f"Generated on: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}"
+                f"Generated on: {now_ist()}"
             )
-            if os.path.exists(LOGO_PATH):
+            if LOGO_PATH and os.path.exists(LOGO_PATH):
                 logo_width = 1 * inch
                 logo       = Image(LOGO_PATH)
                 aspect     = logo.drawHeight / logo.drawWidth
@@ -132,8 +152,8 @@ def generate_typing_test_pdf(
     def add_footer(c, doc):
         c.saveState()
         c.setFont('Helvetica', 8)
-        c.drawString(0.5*inch,              0.85*inch, "Applicant Signature")
-        c.drawCentredString(letter[0]/2,    0.85*inch, "Evaluator Signature")
+        c.drawString(0.5*inch,                0.85*inch, "Applicant Signature")
+        c.drawCentredString(letter[0]/2,      0.85*inch, "Evaluator Signature")
         c.drawRightString(letter[0]-0.5*inch, 0.85*inch, "Hiring Manager Signature")
         c.setLineWidth(0.5)
         c.line(0.5*inch, 0.65*inch, letter[0]-0.5*inch, 0.65*inch)
@@ -149,9 +169,9 @@ def generate_typing_test_pdf(
     # ── Candidate Info ─────────────────────────────────────────
     story.append(Paragraph("Candidate Information", custom_styles['Heading2']))
     candidate_data = [
-        ['Name:',           name,           'Location:',  location],
+        ['Name:',           name,                  'Location:',     location],
         ['Sign-up Date:',   formatted_signup_date, 'Date of Birth:', formatted_dob],
-        ['Attempt Number:', attempt_number, 'Distance:',  f"{distance} km"],
+        ['Attempt Number:', attempt_number,         'Distance:',     f"{distance} km"],
     ]
     candidate_table = Table(
         candidate_data,
@@ -159,19 +179,19 @@ def generate_typing_test_pdf(
         hAlign='LEFT'
     )
     candidate_table.setStyle(TableStyle([
-        ('BACKGROUND',   (0, 0), (-1, -1), colors.white),
-        ('TEXTCOLOR',    (0, 0), (-1, -1), colors.black),
-        ('ALIGN',        (0, 0), (-1, -1), 'LEFT'),
-        ('FONTNAME',     (0, 0), (0, -1),  'Helvetica-Bold'),
-        ('FONTNAME',     (2, 0), (2, -1),  'Helvetica-Bold'),
-        ('FONTSIZE',     (0, 0), (-1, -1), 8),
-        ('BOTTOMPADDING',(0, 0), (-1, -1), 4),
-        ('TOPPADDING',   (0, 0), (-1, -1), 4),
-        ('GRID',         (0, 0), (-1, -1), 0.5, colors.black),
-        ('VALIGN',       (0, 0), (-1, -1), 'MIDDLE'),
-        ('LEFTPADDING',  (0, 0), (-1, -1), 5),
-        ('RIGHTPADDING', (0, 0), (-1, -1), 5),
-        ('LINEBEFORE',   (2, 0), (2, -1),  2, colors.black),
+        ('BACKGROUND',    (0, 0), (-1, -1), colors.white),
+        ('TEXTCOLOR',     (0, 0), (-1, -1), colors.black),
+        ('ALIGN',         (0, 0), (-1, -1), 'LEFT'),
+        ('FONTNAME',      (0, 0), (0, -1),  'Helvetica-Bold'),
+        ('FONTNAME',      (2, 0), (2, -1),  'Helvetica-Bold'),
+        ('FONTSIZE',      (0, 0), (-1, -1), 8),
+        ('BOTTOMPADDING', (0, 0), (-1, -1), 4),
+        ('TOPPADDING',    (0, 0), (-1, -1), 4),
+        ('GRID',          (0, 0), (-1, -1), 0.5, colors.black),
+        ('VALIGN',        (0, 0), (-1, -1), 'MIDDLE'),
+        ('LEFTPADDING',   (0, 0), (-1, -1), 5),
+        ('RIGHTPADDING',  (0, 0), (-1, -1), 5),
+        ('LINEBEFORE',    (2, 0), (2, -1),  2, colors.black),
     ]))
     story.append(candidate_table)
     story.append(Spacer(1, 12))
@@ -206,19 +226,19 @@ def generate_typing_test_pdf(
             hAlign='LEFT'
         )
         typing_table.setStyle(TableStyle([
-            ('BACKGROUND',   (0, 0), (-1, 0),  colors.grey),
-            ('TEXTCOLOR',    (0, 0), (-1, 0),  colors.whitesmoke),
-            ('BACKGROUND',   (0, 1), (-1, -1), colors.white),
-            ('TEXTCOLOR',    (0, 1), (-1, -1), colors.black),
-            ('ALIGN',        (0, 0), (-1, -1), 'CENTER'),
-            ('FONTNAME',     (0, 0), (-1, 0),  'Helvetica-Bold'),
-            ('FONTSIZE',     (0, 0), (-1, -1), 8),
-            ('BOTTOMPADDING',(0, 0), (-1, -1), 4),
-            ('TOPPADDING',   (0, 0), (-1, -1), 4),
-            ('GRID',         (0, 0), (-1, -1), 0.5, colors.black),
-            ('VALIGN',       (0, 0), (-1, -1), 'MIDDLE'),
-            ('LEFTPADDING',  (0, 0), (-1, -1), 5),
-            ('RIGHTPADDING', (0, 0), (-1, -1), 5),
+            ('BACKGROUND',    (0, 0), (-1, 0),  colors.grey),
+            ('TEXTCOLOR',     (0, 0), (-1, 0),  colors.whitesmoke),
+            ('BACKGROUND',    (0, 1), (-1, -1), colors.white),
+            ('TEXTCOLOR',     (0, 1), (-1, -1), colors.black),
+            ('ALIGN',         (0, 0), (-1, -1), 'CENTER'),
+            ('FONTNAME',      (0, 0), (-1, 0),  'Helvetica-Bold'),
+            ('FONTSIZE',      (0, 0), (-1, -1), 8),
+            ('BOTTOMPADDING', (0, 0), (-1, -1), 4),
+            ('TOPPADDING',    (0, 0), (-1, -1), 4),
+            ('GRID',          (0, 0), (-1, -1), 0.5, colors.black),
+            ('VALIGN',        (0, 0), (-1, -1), 'MIDDLE'),
+            ('LEFTPADDING',   (0, 0), (-1, -1), 5),
+            ('RIGHTPADDING',  (0, 0), (-1, -1), 5),
         ]))
         story.append(typing_table)
     else:
@@ -259,17 +279,17 @@ def generate_typing_test_pdf(
             colWidths=[1.5*inch, 4*inch], hAlign='LEFT'
         )
         hw_table.setStyle(TableStyle([
-            ('BACKGROUND',   (0,0),(-1,-1), colors.white),
-            ('TEXTCOLOR',    (0,0),(-1,-1), colors.black),
-            ('ALIGN',        (0,0),(-1,-1), 'LEFT'),
-            ('FONTNAME',     (0,0),(0,-1),  'Helvetica-Bold'),
-            ('FONTSIZE',     (0,0),(-1,-1), 8),
-            ('BOTTOMPADDING',(0,0),(-1,-1), 4),
-            ('TOPPADDING',   (0,0),(-1,-1), 4),
-            ('GRID',         (0,0),(-1,-1), 0.5, colors.black),
-            ('VALIGN',       (0,0),(-1,-1), 'MIDDLE'),
-            ('LEFTPADDING',  (0,0),(-1,-1), 5),
-            ('RIGHTPADDING', (0,0),(-1,-1), 5),
+            ('BACKGROUND',    (0,0),(-1,-1), colors.white),
+            ('TEXTCOLOR',     (0,0),(-1,-1), colors.black),
+            ('ALIGN',         (0,0),(-1,-1), 'LEFT'),
+            ('FONTNAME',      (0,0),(0,-1),  'Helvetica-Bold'),
+            ('FONTSIZE',      (0,0),(-1,-1), 8),
+            ('BOTTOMPADDING', (0,0),(-1,-1), 4),
+            ('TOPPADDING',    (0,0),(-1,-1), 4),
+            ('GRID',          (0,0),(-1,-1), 0.5, colors.black),
+            ('VALIGN',        (0,0),(-1,-1), 'MIDDLE'),
+            ('LEFTPADDING',   (0,0),(-1,-1), 5),
+            ('RIGHTPADDING',  (0,0),(-1,-1), 5),
         ]))
         story.append(hw_table)
     else:
@@ -307,19 +327,19 @@ def generate_typing_test_pdf(
     ]
     excel_table = Table(excel_data, colWidths=[1.5*inch, 2*inch, 2*inch], hAlign='LEFT')
     excel_table.setStyle(TableStyle([
-        ('BACKGROUND',   (0,0),(-1,-1), colors.white),
-        ('TEXTCOLOR',    (0,0),(-1,-1), colors.black),
-        ('ALIGN',        (0,0),(-1,-1), 'LEFT'),
-        ('FONTNAME',     (0,0),(0,-1),  'Helvetica-Bold'),
-        ('FONTNAME',     (2,0),(2,0),   'Helvetica-Bold'),
-        ('FONTSIZE',     (0,0),(-1,-1), 8),
-        ('BOTTOMPADDING',(0,0),(-1,-1), 4),
-        ('TOPPADDING',   (0,0),(-1,-1), 4),
-        ('GRID',         (0,0),(-1,-1), 0.5, colors.black),
-        ('VALIGN',       (0,0),(-1,-1), 'MIDDLE'),
-        ('LEFTPADDING',  (0,0),(-1,-1), 5),
-        ('RIGHTPADDING', (0,0),(-1,-1), 5),
-        ('SPAN',         (2,0),(2,1)),
+        ('BACKGROUND',    (0,0),(-1,-1), colors.white),
+        ('TEXTCOLOR',     (0,0),(-1,-1), colors.black),
+        ('ALIGN',         (0,0),(-1,-1), 'LEFT'),
+        ('FONTNAME',      (0,0),(0,-1),  'Helvetica-Bold'),
+        ('FONTNAME',      (2,0),(2,0),   'Helvetica-Bold'),
+        ('FONTSIZE',      (0,0),(-1,-1), 8),
+        ('BOTTOMPADDING', (0,0),(-1,-1), 4),
+        ('TOPPADDING',    (0,0),(-1,-1), 4),
+        ('GRID',          (0,0),(-1,-1), 0.5, colors.black),
+        ('VALIGN',        (0,0),(-1,-1), 'MIDDLE'),
+        ('LEFTPADDING',   (0,0),(-1,-1), 5),
+        ('RIGHTPADDING',  (0,0),(-1,-1), 5),
+        ('SPAN',          (2,0),(2,1)),
     ]))
     story.append(excel_table)
 
@@ -341,7 +361,7 @@ def generate_typing_test_pdf(
 
     # ── Overall Result ─────────────────────────────────────────
     story.append(Paragraph("Overall Result", custom_styles['Heading2']))
-    section_results = [overall_typing_result, handwritten_result, excel_result]
+    section_results    = [overall_typing_result, handwritten_result, excel_result]
     overall_pass_count = sum(1 for r in section_results if r == 'Pass')
     overall_result     = 'Pass' if overall_pass_count >= 3 else 'Fail'
 
@@ -423,12 +443,13 @@ def generate_error_report_pdf(
     def add_header(c, doc):
         c.saveState()
         try:
+            # Generated time in IST — accurate on both local and Render
             c.setFont('Helvetica', 9)
             c.drawString(
                 0.5*inch, letter[1] - 0.65*inch,
-                f"Generated on: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}"
+                f"Generated on: {now_ist()}"
             )
-            if os.path.exists(LOGO_PATH):
+            if LOGO_PATH and os.path.exists(LOGO_PATH):
                 logo_width = 1 * inch
                 logo       = Image(LOGO_PATH)
                 aspect     = logo.drawHeight / logo.drawWidth
@@ -492,18 +513,18 @@ def generate_error_report_pdf(
 
             hw_table = Table(hw_data, colWidths=[2*inch, 2.5*inch, 2.5*inch])
             hw_table.setStyle(TableStyle([
-                ('BACKGROUND',   (0,0),(-1,0),  colors.grey),
-                ('TEXTCOLOR',    (0,0),(-1,0),  colors.whitesmoke),
-                ('ALIGN',        (0,0),(-1,-1), 'LEFT'),
-                ('FONTNAME',     (0,0),(-1,0),  'Helvetica-Bold'),
-                ('FONTSIZE',     (0,0),(-1,-1), 10),
-                ('BACKGROUND',   (0,1),(-1,-1), colors.beige),
-                ('GRID',         (0,0),(-1,-1), 0.5, colors.black),
-                ('VALIGN',       (0,0),(-1,-1), 'MIDDLE'),
-                ('LEFTPADDING',  (0,0),(-1,-1), 5),
-                ('RIGHTPADDING', (0,0),(-1,-1), 5),
-                ('TOPPADDING',   (0,0),(-1,-1), 5),
-                ('BOTTOMPADDING',(0,0),(-1,-1), 5),
+                ('BACKGROUND',    (0,0),(-1,0),  colors.grey),
+                ('TEXTCOLOR',     (0,0),(-1,0),  colors.whitesmoke),
+                ('ALIGN',         (0,0),(-1,-1), 'LEFT'),
+                ('FONTNAME',      (0,0),(-1,0),  'Helvetica-Bold'),
+                ('FONTSIZE',      (0,0),(-1,-1), 10),
+                ('BACKGROUND',    (0,1),(-1,-1), colors.beige),
+                ('GRID',          (0,0),(-1,-1), 0.5, colors.black),
+                ('VALIGN',        (0,0),(-1,-1), 'MIDDLE'),
+                ('LEFTPADDING',   (0,0),(-1,-1), 5),
+                ('RIGHTPADDING',  (0,0),(-1,-1), 5),
+                ('TOPPADDING',    (0,0),(-1,-1), 5),
+                ('BOTTOMPADDING', (0,0),(-1,-1), 5),
             ]))
             story.append(hw_table)
 
@@ -547,18 +568,18 @@ def generate_error_report_pdf(
 
             eq_table = Table(eq_data, colWidths=[2.5*inch, 2*inch, 2*inch])
             eq_table.setStyle(TableStyle([
-                ('BACKGROUND',   (0,0),(-1,0),  colors.grey),
-                ('TEXTCOLOR',    (0,0),(-1,0),  colors.whitesmoke),
-                ('ALIGN',        (0,0),(-1,-1), 'LEFT'),
-                ('FONTNAME',     (0,0),(-1,0),  'Helvetica-Bold'),
-                ('FONTSIZE',     (0,0),(-1,-1), 10),
-                ('BACKGROUND',   (0,1),(-1,-1), colors.beige),
-                ('GRID',         (0,0),(-1,-1), 0.5, colors.black),
-                ('VALIGN',       (0,0),(-1,-1), 'MIDDLE'),
-                ('LEFTPADDING',  (0,0),(-1,-1), 5),
-                ('RIGHTPADDING', (0,0),(-1,-1), 5),
-                ('TOPPADDING',   (0,0),(-1,-1), 5),
-                ('BOTTOMPADDING',(0,0),(-1,-1), 5),
+                ('BACKGROUND',    (0,0),(-1,0),  colors.grey),
+                ('TEXTCOLOR',     (0,0),(-1,0),  colors.whitesmoke),
+                ('ALIGN',         (0,0),(-1,-1), 'LEFT'),
+                ('FONTNAME',      (0,0),(-1,0),  'Helvetica-Bold'),
+                ('FONTSIZE',      (0,0),(-1,-1), 10),
+                ('BACKGROUND',    (0,1),(-1,-1), colors.beige),
+                ('GRID',          (0,0),(-1,-1), 0.5, colors.black),
+                ('VALIGN',        (0,0),(-1,-1), 'MIDDLE'),
+                ('LEFTPADDING',   (0,0),(-1,-1), 5),
+                ('RIGHTPADDING',  (0,0),(-1,-1), 5),
+                ('TOPPADDING',    (0,0),(-1,-1), 5),
+                ('BOTTOMPADDING', (0,0),(-1,-1), 5),
             ]))
             story.append(eq_table)
 
