@@ -1,10 +1,8 @@
 {% extends "base.html" %}
 {% block title %}Handwritten Verification{% endblock %}
-
 {% block scripts %}
     <script src="{{ url_for('static', filename='js/script.js') }}?v={{ 'now'|timestamp }}"></script>
 {% endblock %}
-
 {% block content %}
 <div style="margin-bottom:var(--sp-5);text-align:center;">
     <span style="display:inline-block;background:var(--teal-50);color:var(--teal-700);
@@ -19,7 +17,6 @@
         You have one attempt per image and <strong>10 minutes</strong> to complete the round.
     </p>
 </div>
-
 {% if completed %}
 <div class="card fade-in delay-2" style="text-align:center;padding:var(--sp-10);">
     <div style="font-size:2.5rem;margin-bottom:var(--sp-4);">✅</div>
@@ -33,7 +30,6 @@
     <a href="{{ url_for('welcome') }}" class="btn">Back to Welcome →</a>
 </div>
 {% else %}
-
 <!-- Timer -->
 <div class="fade-in delay-1" style="
     display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;
@@ -64,92 +60,102 @@
 </div>
 
 <div class="card fade-in delay-2">
-    <!-- Image Display with Mouse Wheel Zoom Support -->
+    <!-- Image Display -->
     <div style="background:var(--gray-50);border:1px solid var(--gray-200);
         border-radius:var(--r-lg);padding:var(--sp-4);margin-bottom:var(--sp-5);
-        text-align:center; position:relative;">
-        
+        text-align:center;position:relative;">
+
         {% if image_url %}
-            <!-- Zoom controls -->
-            <div style="display:flex;align-items:center;justify-content:flex-end;
-                gap:8px;margin-bottom:12px;">
-                <span style="font-size:var(--text-xs);color:var(--gray-400);
-                    font-weight:600;margin-right:4px;">Zoom</span>
-                <button type="button" id="zoomOut" onclick="changeZoom(-0.2)"
-                    title="Zoom Out"
-                    style="width:32px;height:32px;border-radius:var(--r-md);
-                        border:1px solid var(--gray-200);background:#fff;
-                        cursor:pointer;font-size:16px;font-weight:700;
-                        color:var(--gray-600);display:inline-flex;
-                        align-items:center;justify-content:center;
-                        transition:background 0.15s,border-color 0.15s;
-                        line-height:1;"
-                    onmouseover="this.style.background='var(--gray-100)'"
-                    onmouseout="this.style.background='#fff'">
-                    −
-                </button>
-                <span id="zoomLevel" style="font-family:var(--font-mono);
-                    font-size:var(--text-xs);font-weight:700;color:var(--gray-500);
-                    min-width:38px;text-align:center;">
-                    100%
+            <!-- Zoom toolbar -->
+            <div style="display:flex;align-items:center;justify-content:space-between;
+                flex-wrap:wrap;gap:8px;margin-bottom:12px;">
+                <span style="font-size:var(--text-xs);color:var(--gray-400);font-weight:600;">
+                    🖱️ Scroll to zoom · Click buttons or use <kbd style="font-family:var(--font-mono);
+                    background:var(--gray-100);border:1px solid var(--gray-200);border-radius:4px;
+                    padding:1px 5px;font-size:10px;">+</kbd> / <kbd style="font-family:var(--font-mono);
+                    background:var(--gray-100);border:1px solid var(--gray-200);border-radius:4px;
+                    padding:1px 5px;font-size:10px;">−</kbd>
                 </span>
-                <button type="button" id="zoomIn" onclick="changeZoom(0.2)"
-                    title="Zoom In"
-                    style="width:32px;height:32px;border-radius:var(--r-md);
-                        border:1px solid var(--gray-200);background:#fff;
-                        cursor:pointer;font-size:16px;font-weight:700;
-                        color:var(--gray-600);display:inline-flex;
-                        align-items:center;justify-content:center;
-                        transition:background 0.15s,border-color 0.15s;
-                        line-height:1;"
-                    onmouseover="this.style.background='var(--gray-100)'"
-                    onmouseout="this.style.background='#fff'">
-                    +
-                </button>
-                <button type="button" onclick="resetZoom()"
-                    title="Reset Zoom"
-                    style="padding:0 10px;height:32px;border-radius:var(--r-md);
-                        border:1px solid var(--gray-200);background:#fff;
-                        cursor:pointer;font-size:11px;font-weight:600;
-                        color:var(--gray-500);display:inline-flex;
-                        align-items:center;justify-content:center;
-                        transition:background 0.15s;white-space:nowrap;"
-                    onmouseover="this.style.background='var(--gray-100)'"
-                    onmouseout="this.style.background='#fff'">
-                    ↺ Reset
-                </button>
+                <div style="display:flex;align-items:center;gap:8px;">
+                    <button type="button" id="zoomOut"
+                        title="Zoom Out (−)"
+                        style="width:32px;height:32px;border-radius:var(--r-md);
+                            border:1px solid var(--gray-200);background:#fff;
+                            cursor:pointer;font-size:18px;font-weight:700;
+                            color:var(--gray-600);display:inline-flex;
+                            align-items:center;justify-content:center;
+                            transition:background 0.15s,border-color 0.15s;line-height:1;"
+                        onmouseover="this.style.background='var(--gray-100)'"
+                        onmouseout="this.style.background='#fff'">−</button>
+                    <span id="zoomLevel" style="font-family:var(--font-mono);
+                        font-size:var(--text-xs);font-weight:700;color:var(--gray-600);
+                        min-width:42px;text-align:center;background:var(--gray-100);
+                        border:1px solid var(--gray-200);border-radius:var(--r-md);
+                        padding:3px 6px;">100%</span>
+                    <button type="button" id="zoomIn"
+                        title="Zoom In (+)"
+                        style="width:32px;height:32px;border-radius:var(--r-md);
+                            border:1px solid var(--gray-200);background:#fff;
+                            cursor:pointer;font-size:18px;font-weight:700;
+                            color:var(--gray-600);display:inline-flex;
+                            align-items:center;justify-content:center;
+                            transition:background 0.15s,border-color 0.15s;line-height:1;"
+                        onmouseover="this.style.background='var(--gray-100)'"
+                        onmouseout="this.style.background='#fff'">+</button>
+                    <button type="button" id="zoomReset"
+                        title="Reset Zoom (0)"
+                        style="padding:0 10px;height:32px;border-radius:var(--r-md);
+                            border:1px solid var(--gray-200);background:#fff;
+                            cursor:pointer;font-size:11px;font-weight:600;
+                            color:var(--gray-500);display:inline-flex;
+                            align-items:center;justify-content:center;
+                            transition:background 0.15s;white-space:nowrap;"
+                        onmouseover="this.style.background='var(--gray-100)'"
+                        onmouseout="this.style.background='#fff'">↺ Reset</button>
+                </div>
             </div>
 
-            <!-- Image Wrapper - Supports Mouse Wheel Zoom -->
+            <!--
+                KEY FIX: The wrapper uses overflow:auto so scrollbars appear when
+                the image is larger than the frame. The image is sized by actual
+                pixel width (not transform:scale), so the scroll container always
+                knows the true content size and never clips the image.
+            -->
             <div id="imageWrapper" style="
                 overflow: auto;
                 border: 2px solid var(--gray-200);
                 border-radius: var(--r-md);
                 background: #fff;
-                max-height: 480px;           /* Larger frame */
-                min-height: 340px;
+                height: 520px;
                 width: 100%;
-                padding: 20px;
                 box-sizing: border-box;
-                display: flex;
-                align-items: flex-start;
-                justify-content: center;
                 position: relative;
                 box-shadow: inset 0 2px 10px rgba(0,0,0,0.04);">
-                
-                <img src="{{ image_url }}?v={{ 'now'|timestamp }}"
-                    alt="Handwritten Text"
-                    id="current-image"
-                    style="
-                        max-width: none;
-                        max-height: none;
-                        width: auto;
-                        height: auto;
-                        transform-origin: top left;
-                        transition: transform 0.2s ease;
-                        display: block;
-                        box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-                        cursor: zoom-in;">
+
+                <!-- Inner div grows to the zoomed image size, enabling scrolling -->
+                <div id="imageCanvas" style="
+                    display: inline-flex;
+                    align-items: center;
+                    justify-content: center;
+                    min-width: 100%;
+                    min-height: 100%;
+                    padding: 20px;
+                    box-sizing: border-box;">
+
+                    <img src="{{ image_url }}?v={{ 'now'|timestamp }}"
+                        alt="Handwritten Text"
+                        id="current-image"
+                        draggable="false"
+                        style="
+                            display: block;
+                            max-width: 100%;
+                            height: auto;
+                            box-shadow: 0 4px 16px rgba(0,0,0,0.12);
+                            border-radius: 4px;
+                            cursor: zoom-in;
+                            user-select: none;
+                            -webkit-user-drag: none;">
+                </div>
             </div>
         {% else %}
             <div style="display:flex;align-items:center;justify-content:center;
@@ -182,96 +188,172 @@
         <div class="submission-loader" id="loader"></div>
     </form>
 </div>
-
 {% endif %}
 
 <a href="{{ url_for('welcome') }}" class="back-link fade-in delay-2">← Back to Welcome</a>
 
-<!-- Zoom Script with Mouse Wheel Support -->
+<!-- ─── Zoom Logic ──────────────────────────────────────────────────────────── -->
 <script>
-    let currentZoom = 1.0;
-    const MIN_ZOOM = 0.3;
-    const MAX_ZOOM = 6.0;
-    const STEP = 0.15;
+(function () {
+    'use strict';
 
-    const img = document.getElementById('current-image');
-    const wrapper = document.getElementById('imageWrapper');
+    const img       = document.getElementById('current-image');
+    const wrapper   = document.getElementById('imageWrapper');
+    const canvas    = document.getElementById('imageCanvas');
     const zoomLabel = document.getElementById('zoomLevel');
+    const input     = document.getElementById('handwritten_input');
 
-    function updateZoom() {
-        if (!img) return;
-        img.style.transform = `scale(${currentZoom})`;
-        zoomLabel.textContent = Math.round(currentZoom * 100) + '%';
+    if (!img || !wrapper) return;   // completed state — no image present
+
+    const MIN_ZOOM   = 0.25;
+    const MAX_ZOOM   = 8.0;
+    const WHEEL_STEP = 0.12;
+    const BTN_STEP   = 0.25;
+
+    let currentZoom  = 1.0;
+    let naturalW     = 0;   // image's intrinsic pixel width
+    let naturalH     = 0;
+
+    /* ── Initialise once the image has loaded ── */
+    function init() {
+        naturalW = img.naturalWidth  || img.width  || img.offsetWidth;
+        naturalH = img.naturalHeight || img.height || img.offsetHeight;
+
+        // Start at "fit" zoom so the whole image is visible on load
+        const padH  = 40;   // 20px padding each side
+        const padV  = 40;
+        const fitW  = (wrapper.clientWidth  - padH) / naturalW;
+        const fitH  = (wrapper.clientHeight - padV) / naturalH;
+        currentZoom = Math.min(fitW, fitH, 1.0);   // never enlarge beyond 100% on load
+        currentZoom = Math.max(currentZoom, MIN_ZOOM);
+        applyZoom(null, null);
     }
 
-    function changeZoom(delta) {
-        currentZoom = Math.min(MAX_ZOOM, Math.max(MIN_ZOOM,
-            Math.round((currentZoom + delta) * 20) / 20   // smoother steps
-        ));
-        updateZoom();
+    /* ── Core zoom applier ──────────────────────────────────────────────────
+       Instead of CSS transform (which keeps layout size unchanged and causes
+       clipping), we set explicit pixel dimensions on the <img>.
+       The scroll container then sees the real content size and scrollbars
+       appear automatically — the image is never hidden or clipped.
+    ─────────────────────────────────────────────────────────────────────── */
+    function applyZoom(pivotX, pivotY) {
+        if (!naturalW) return;
+
+        // Remember scroll position relative to the pivot point
+        let scrollAdjX = 0, scrollAdjY = 0;
+
+        if (pivotX !== null && pivotY !== null) {
+            // Ratio of pivot inside the current scrollable content
+            const contentW = img.offsetWidth;
+            const contentH = img.offsetHeight;
+            const ratioX   = (wrapper.scrollLeft + pivotX) / (contentW + 40);
+            const ratioY   = (wrapper.scrollTop  + pivotY) / (contentH + 40);
+            scrollAdjX     = ratioX;
+            scrollAdjY     = ratioY;
+        }
+
+        const newW = Math.round(naturalW * currentZoom);
+        const newH = Math.round(naturalH * currentZoom);
+
+        img.style.width  = newW + 'px';
+        img.style.height = newH + 'px';
+        img.style.maxWidth  = 'none';   // override the default max-width:100%
+        img.style.maxHeight = 'none';
+
+        zoomLabel.textContent = Math.round(currentZoom * 100) + '%';
+        img.style.cursor = currentZoom >= MAX_ZOOM ? 'zoom-out' : 'zoom-in';
+
+        // Re-centre scroll after size change
+        if (pivotX !== null && pivotY !== null) {
+            requestAnimationFrame(() => {
+                const newContentW = img.offsetWidth  + 40;
+                const newContentH = img.offsetHeight + 40;
+                wrapper.scrollLeft = scrollAdjX * newContentW - pivotX;
+                wrapper.scrollTop  = scrollAdjY * newContentH - pivotY;
+            });
+        } else {
+            // On first load / reset: centre the image
+            requestAnimationFrame(() => {
+                wrapper.scrollLeft = (wrapper.scrollWidth  - wrapper.clientWidth)  / 2;
+                wrapper.scrollTop  = (wrapper.scrollHeight - wrapper.clientHeight) / 2;
+            });
+        }
+    }
+
+    function clamp(val) {
+        return Math.min(MAX_ZOOM, Math.max(MIN_ZOOM,
+            Math.round(val * 100) / 100));
+    }
+
+    /* ── Public change functions ── */
+    function zoom(delta, pivotX, pivotY) {
+        currentZoom = clamp(currentZoom + delta);
+        applyZoom(
+            pivotX !== undefined ? pivotX : wrapper.clientWidth  / 2,
+            pivotY !== undefined ? pivotY : wrapper.clientHeight / 2
+        );
     }
 
     function resetZoom() {
-        currentZoom = 1.0;
-        updateZoom();
+        // Recalculate fit zoom in case wrapper was resized
+        const fitW  = (wrapper.clientWidth  - 40) / naturalW;
+        const fitH  = (wrapper.clientHeight - 40) / naturalH;
+        currentZoom = Math.min(fitW, fitH, 1.0);
+        currentZoom = Math.max(currentZoom, MIN_ZOOM);
+        applyZoom(null, null);
     }
 
-    // Mouse Wheel Zoom (main feature requested)
-    function handleWheel(e) {
-        if (!img || document.activeElement.id === 'handwritten_input') return;
+    /* ── Mouse-wheel zoom (the main requested feature) ───────────────────── */
+    wrapper.addEventListener('wheel', function (e) {
+        e.preventDefault();     // stop the page from scrolling
 
-        e.preventDefault();                    // Prevent page scroll
+        const rect   = wrapper.getBoundingClientRect();
+        const pivotX = e.clientX - rect.left;   // mouse position within wrapper
+        const pivotY = e.clientY - rect.top;
 
-        const delta = e.deltaY > 0 ? -STEP : STEP;
-        const oldZoom = currentZoom;
+        const delta = e.deltaY < 0 ? WHEEL_STEP : -WHEEL_STEP;
+        zoom(delta, pivotX, pivotY);
+    }, { passive: false });
 
-        changeZoom(delta);
+    /* ── Button events ── */
+    document.getElementById('zoomIn') .addEventListener('click', () => zoom( BTN_STEP));
+    document.getElementById('zoomOut').addEventListener('click', () => zoom(-BTN_STEP));
+    document.getElementById('zoomReset').addEventListener('click', resetZoom);
 
-        // Optional: zoom towards mouse cursor (nice UX)
-        if (currentZoom !== oldZoom) {
-            const rect = wrapper.getBoundingClientRect();
-            const mouseX = e.clientX - rect.left;
-            const mouseY = e.clientY - rect.top;
+    /* ── Keyboard shortcuts (only when text input is not focused) ── */
+    document.addEventListener('keydown', function (e) {
+        if (document.activeElement === input) return;
+        if (e.key === '+' || e.key === '=') { e.preventDefault(); zoom( BTN_STEP); }
+        if (e.key === '-' || e.key === '_') { e.preventDefault(); zoom(-BTN_STEP); }
+        if (e.key === '0')                  { e.preventDefault(); resetZoom();     }
+    });
 
-            // Simple pan adjustment after zoom
-            wrapper.scrollLeft += (mouseX * (currentZoom - oldZoom));
-            wrapper.scrollTop += (mouseY * (currentZoom - oldZoom));
-        }
-    }
-
-    // Button clicks
-    document.getElementById('zoomIn').addEventListener('click', () => changeZoom(STEP));
-    document.getElementById('zoomOut').addEventListener('click', () => changeZoom(-STEP));
-
-    // Keyboard support
-    document.addEventListener('keydown', function(e) {
-        if (document.activeElement.id === 'handwritten_input') return;
-
-        if (e.key === '+' || e.key === '=') {
-            e.preventDefault();
-            changeZoom(STEP);
-        }
-        if (e.key === '-') {
-            e.preventDefault();
-            changeZoom(-STEP);
-        }
-        if (e.key === '0') {
-            e.preventDefault();
+    /* ── Click to toggle zoom ── */
+    img.addEventListener('click', function (e) {
+        const rect   = wrapper.getBoundingClientRect();
+        const pivotX = e.clientX - rect.left;
+        const pivotY = e.clientY - rect.top;
+        if (currentZoom < 2.0) {
+            currentZoom = clamp(2.0);
+            applyZoom(pivotX, pivotY);
+        } else {
             resetZoom();
         }
     });
 
-    // Attach wheel event
-    if (wrapper && img) {
-        wrapper.addEventListener('wheel', handleWheel, { passive: false });
-        
-        // Reset zoom when new image loads
-        img.addEventListener('load', resetZoom);
+    /* ── Initialise ── */
+    if (img.complete && img.naturalWidth) {
+        init();
+    } else {
+        img.addEventListener('load', init);
     }
 
-    // Initial setup
-    window.addEventListener('load', () => {
-        if (img) resetZoom();
+    /* ── Re-fit on window resize ── */
+    let resizeTimer;
+    window.addEventListener('resize', function () {
+        clearTimeout(resizeTimer);
+        resizeTimer = setTimeout(resetZoom, 150);
     });
+
+})();
 </script>
 {% endblock %}
