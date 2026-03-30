@@ -46,19 +46,19 @@
 {% set prac_total  = excel_sheet_scores.values() | sum if excel_sheet_scores else 0 %}
 {% set prac_pct    = ((prac_total / 10 * 100) | round | int) if excel_sheet_scores else 0 %}
 
-{# Typing pass: at least 2 of 3 attempts with WPM >= 25 AND Accuracy >= 90 #}
-{% set typing_pass_count = results | selectattr('wpm', 'ge', 25) | selectattr('accuracy', 'ge', 90) | list | length %}
-{% set typing_passed = typing_pass_count >= 2 %}
+{# Typing pass — uses dynamic criteria from app.py #}
+{% set typing_pass_count = results | selectattr('wpm', 'ge', pass_wpm) | selectattr('accuracy', 'ge', pass_accuracy) | list | length %}
+{% set typing_passed     = typing_pass_count >= pass_count %}
 
 <div class="fade-in delay-2" style="display:grid;
     grid-template-columns:repeat(auto-fit,minmax(200px,1fr));
     gap:var(--sp-4);margin-bottom:var(--sp-6);">
 
     {% set summary = [
-        ('⌨️', 'Typing Test',       results | length ~ '/3 attempts',         typing_passed),
-        ('✍️', 'Handwritten',       hw_correct ~ '/' ~ hw_total ~ ' correct', hw_correct >= 8),
-        ('📊', 'Excel Quiz',        excel_score ~ '/' ~ excel_total ~ ' correct', excel_score >= 7),
-        ('📁', 'Excel Practical',   prac_total ~ '/10 sheets',                prac_total >= 7),
+        ('⌨️', 'Typing Test',     results | length ~ '/3 attempts',         typing_passed),
+        ('✍️', 'Handwritten',     hw_correct ~ '/' ~ hw_total ~ ' correct', hw_correct >= 8),
+        ('📊', 'Excel Quiz',      excel_score ~ '/' ~ excel_total ~ ' correct', excel_score >= 7),
+        ('📁', 'Excel Practical', prac_total ~ '/10 sheets',                prac_total >= 7),
     ] %}
 
     {% for icon, label, value, passed in summary %}
@@ -91,10 +91,12 @@
 <div class="card fade-in delay-2">
     <h2>⌨️ Typing Test Results</h2>
 
-    <!-- Pass criteria note -->
+    <!-- Dynamic pass criteria note -->
     <p style="font-size:var(--text-xs);color:var(--gray-400);
         margin-bottom:var(--sp-4);margin-top:0;">
-        Pass criteria: WPM ≥ 25 and Accuracy ≥ 90% in at least 2 of 3 attempts.
+        Pass criteria: WPM ≥ <strong style="color:var(--navy-700);">{{ pass_wpm }}</strong>
+        and Accuracy ≥ <strong style="color:var(--navy-700);">{{ pass_accuracy }}%</strong>
+        in at least <strong style="color:var(--navy-700);">{{ pass_count }}</strong> of 3 attempts.
         <strong style="color:{{ 'var(--green-600)' if typing_passed else 'var(--red-600)' }};">
             {{ typing_pass_count }}/3 attempt{{ 's' if typing_pass_count != 1 }} passed.
         </strong>
@@ -116,7 +118,8 @@
             </thead>
             <tbody>
                 {% for result in results %}
-                {% set attempt_passed = result.wpm >= 25 and result.accuracy >= 90 %}
+                {# Use dynamic criteria from app.py #}
+                {% set attempt_passed = result.wpm >= pass_wpm and result.accuracy >= pass_accuracy %}
                 <tr>
                     <td>
                         {% if result.attempt == 1 %}1st
@@ -266,8 +269,7 @@
     </div>
     {% if excel_practical_file %}
     <p style="margin-top:var(--sp-4);font-size:var(--text-sm);color:var(--gray-400);">
-        📎 Submitted file:
-        <code style="font-family:var(--font-mono);
+        📎 Submitted file: <code style="font-family:var(--font-mono);
             background:var(--gray-100);padding:2px 6px;
             border-radius:var(--r-sm);font-size:var(--text-xs);">
             {{ excel_practical_file }}

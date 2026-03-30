@@ -22,7 +22,6 @@ logger = logging.getLogger(__name__)
 
 # ── Path setup: PyInstaller bundle vs normal Python / Render ───
 if getattr(sys, 'frozen', False):
-    # Running as a PyInstaller .exe
     import shutil
     base_path = sys._MEIPASS
     user_dir  = os.path.join(os.path.expanduser("~"), "InterviewAutomation")
@@ -38,17 +37,13 @@ if getattr(sys, 'frozen', False):
         shutil.copytree(os.path.join(base_path, 'static'), writable_static)
 
 else:
-    # Normal Python — local dev (VS Code) or Render deployment
     base_path = os.path.dirname(__file__)
-
-    # DATA_ROOT: set to /data on Render (persistent disk), else use project root
     data_root = os.environ.get('DATA_ROOT', base_path)
     user_dir  = data_root
 
     writable_data_json = os.path.join(data_root, 'data.json')
-    writable_static    = os.path.join(base_path, 'static')  # repo static for CSS/JS
+    writable_static    = os.path.join(base_path, 'static')
 
-    # On first boot, copy data.json to user_dir if it doesn't exist
     if not os.path.exists(writable_data_json):
         import shutil
         src = os.path.join(base_path, 'data.json')
@@ -57,7 +52,6 @@ else:
             shutil.copy(src, writable_data_json)
             logger.info("Copied data.json to user_dir on first boot.")
 
-    # On first boot, copy essential binary files to user_dir if missing
     import shutil as _shutil
     for _fname in ['master_excel_solution.xlsx', 'logo.png']:
         _src  = os.path.join(base_path, 'static', _fname)
@@ -69,19 +63,13 @@ else:
 # ── Flask app ──────────────────────────────────────────────────
 app = Flask(__name__, static_folder=writable_static, static_url_path='/static')
 app.config['SECRET_KEY']         = os.environ.get('SECRET_KEY', 'fallback-dev-key-change-this')
-
-# All writable/uploaded files go to user_dir — persistent on both local and Render
 app.config['UPLOAD_FOLDER']      = user_dir
 app.config['ALLOWED_EXTENSIONS'] = {'png', 'jpg', 'jpeg', 'xlsx'}
 
-# ── Server-side session config ─────────────────────────────────
-# Stores session data on the filesystem instead of in the browser cookie.
-# This avoids the 4096-byte browser cookie size limit which was causing
-# the Set-Cookie header to be silently dropped after large handwritten
-# sessions. The cookie now only holds a small session ID.
+# ── Server-side session ────────────────────────────────────────
 app.config['SESSION_TYPE']           = 'filesystem'
 app.config['SESSION_FILE_DIR']       = os.path.join(user_dir, 'flask_sessions')
-app.config['SESSION_FILE_THRESHOLD'] = 500   # max number of session files on disk
+app.config['SESSION_FILE_THRESHOLD'] = 500
 app.config['SESSION_PERMANENT']      = False
 app.config['SESSION_USE_SIGNER']     = True
 os.makedirs(app.config['SESSION_FILE_DIR'], exist_ok=True)
@@ -110,18 +98,13 @@ else:
     except Exception as e:
         logger.error(f"Unexpected error loading data.json: {e}")
 
-# ── Jinja filter: cache-busting timestamp ─────────────────────
+# ── Jinja filter ───────────────────────────────────────────────
 app.jinja_env.filters['timestamp'] = lambda _: str(int(time()))
 
 # ── Admin credentials ──────────────────────────────────────────
 ADMIN_USERNAME = os.environ.get('ADMIN_USERNAME', 'admin')
 
 def get_admin_password():
-    """
-    Returns the admin password, checked fresh on every login.
-    Default: 'Admin@YYYYMMDD' — updates automatically at midnight.
-    Override: set the ADMIN_PASSWORD environment variable.
-    """
     return os.environ.get('ADMIN_PASSWORD', 'Admin@' + datetime.now().strftime('%Y%m%d'))
 
 # ── Signup gate password ───────────────────────────────────────
@@ -135,6 +118,24 @@ ATTEMPT_CONFIG = [
     {'label': 'Third Attempt',  'difficulty': 'hard',   'time_limit': 120, 'scored': True},
 ]
 
+# ── Typing test pass criteria ──────────────────────────────────
+# Configurable via environment variables for flexibility.
+# TYPING_PASS_WPM      — minimum WPM required per attempt   (default: 25)
+# TYPING_PASS_ACCURACY — minimum accuracy % required        (default: 90)
+# TYPING_PASS_COUNT    — minimum passing attempts out of 3  (default: 2)
+#
+# To change on Render: set these env vars and redeploy.
+# To change locally:   edit the defaults below or set env vars.
+TYPING_PASS_WPM      = int(os.environ.get('TYPING_PASS_WPM',      25))
+TYPING_PASS_ACCURACY = int(os.environ.get('TYPING_PASS_ACCURACY', 90))
+TYPING_PASS_COUNT    = int(os.environ.get('TYPING_PASS_COUNT',      2))
+
+logger.info(
+    f"Typing pass criteria — WPM: {TYPING_PASS_WPM}, "
+    f"Accuracy: {TYPING_PASS_ACCURACY}%, "
+    f"Min passing attempts: {TYPING_PASS_COUNT}/3"
+)
+
 
 # ══════════════════════════════════════════════════════════════
 # HELPER FUNCTIONS
@@ -146,7 +147,6 @@ def allowed_file(filename):
 
 
 def generate_excel_template():
-    """Generate an Excel template from EXCEL_PRACTICAL_TASKS."""
     workbook = openpyxl.Workbook()
 
     sheet1  = workbook.active; sheet1.title = "Function"
@@ -197,7 +197,6 @@ def generate_excel_template():
 
 
 def validate_excel_against_master(user_file_path, master_file_path):
-    """Compare user's Excel file against master; 1 per sheet if identical, else 0."""
     sheet_names = [
         "Function", "Sort", "Replace", "Concatenate", "Sum & Average",
         "Insert Row & Delete Column", "Trim & Length", "Left & Right",
@@ -248,8 +247,6 @@ with app.app_context():
     init_db()
 
 # ── Generate Excel template on startup (only if missing) ───────
-# Preserves any manually uploaded custom template.
-# To rebuild from tasks, use "Regenerate Now" in the dashboard.
 with app.app_context():
     try:
         template_path = os.path.join(app.config['UPLOAD_FOLDER'], 'excel_practical_template.xlsx')
@@ -266,19 +263,13 @@ with app.app_context():
 
 
 # ══════════════════════════════════════════════════════════════
-# FILE SERVING — uploaded files from user_dir
+# FILE SERVING
 # ══════════════════════════════════════════════════════════════
 
 @app.route('/uploads/<path:filename>')
 def uploaded_file(filename):
-    """
-    Serve any file from the writable UPLOAD_FOLDER (user_dir).
-    Works on both local dev and Render since UPLOAD_FOLDER
-    always points to user_dir (persistent storage).
-    """
     file_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
     if not os.path.exists(file_path):
-        # Fallback: try static folder (for committed files like logo)
         fallback = os.path.join(writable_static, filename)
         if os.path.exists(fallback):
             return send_file(fallback)
@@ -318,10 +309,6 @@ def admin_dashboard():
     if request.method == 'POST':
 
         # ── Update data.json ───────────────────────────────────
-        # NOTE: generate_excel_template() is intentionally NOT called here.
-        # Saving data.json only updates paragraphs, questions and task list
-        # in memory. The Excel template file is preserved as-is.
-        # To rebuild the template from tasks, use "Regenerate Now" button.
         if 'data_json' in request.form:
             try:
                 new_data = json.loads(request.form.get('data_json'))
@@ -333,7 +320,6 @@ def admin_dashboard():
                 HANDWRITTEN_TEXTS     = new_data.get('handwritten_texts',    [])
                 EXCEL_QUIZ_QUESTIONS  = new_data.get('excel_quiz_questions', [])
                 EXCEL_PRACTICAL_TASKS = new_data.get('excel_practical_tasks',[])
-                # ✅ Template is NOT regenerated here — uploaded custom file is preserved
                 flash('data.json updated successfully!', 'success')
             except json.JSONDecodeError:
                 flash('Invalid JSON format.', 'error')
@@ -400,12 +386,15 @@ def admin_dashboard():
         image_files=image_files,
         master_excel_exists=master_excel_exists,
         template_excel_exists=template_excel_exists,
+        # Pass current typing criteria so admin can see active values
+        typing_pass_wpm=TYPING_PASS_WPM,
+        typing_pass_accuracy=TYPING_PASS_ACCURACY,
+        typing_pass_count=TYPING_PASS_COUNT,
     )
 
 
 @app.route('/admin_upload_master_excel', methods=['POST'])
 def admin_upload_master_excel():
-    """Upload or replace the master Excel solution file."""
     if not session.get('admin_logged_in'):
         flash('Please log in as admin.', 'error')
         return redirect(url_for('admin_login'))
@@ -433,7 +422,6 @@ def admin_upload_master_excel():
 
 @app.route('/admin_upload_excel_template', methods=['POST'])
 def admin_upload_excel_template():
-    """Upload or replace the candidate Excel template file."""
     if not session.get('admin_logged_in'):
         flash('Please log in as admin.', 'error')
         return redirect(url_for('admin_login'))
@@ -463,7 +451,6 @@ def admin_upload_excel_template():
 
 @app.route('/admin_regenerate_template')
 def admin_regenerate_template():
-    """Explicitly regenerate the candidate Excel template from current task list."""
     if not session.get('admin_logged_in'):
         flash('Please log in as admin.', 'error')
         return redirect(url_for('admin_login'))
@@ -522,6 +509,9 @@ def debug_paths():
         'template_in_static':    os.path.exists(static_template),
         'template_upload_mtime': str(datetime.fromtimestamp(os.path.getmtime(template_path))) if os.path.exists(template_path) else 'missing',
         'template_static_mtime': str(datetime.fromtimestamp(os.path.getmtime(static_template))) if os.path.exists(static_template) else 'missing',
+        'typing_pass_wpm':       TYPING_PASS_WPM,
+        'typing_pass_accuracy':  TYPING_PASS_ACCURACY,
+        'typing_pass_count':     TYPING_PASS_COUNT,
     })
 
 
@@ -847,6 +837,10 @@ def typing_test():
         attempt_index=attempt_index,
         typing_attempts=len(session.get('typing_results', [])),
         typing_results=session.get('typing_results', []),
+        # Pass configurable criteria to template
+        pass_wpm=TYPING_PASS_WPM,
+        pass_accuracy=TYPING_PASS_ACCURACY,
+        pass_count=TYPING_PASS_COUNT,
     )
 
 
@@ -1072,6 +1066,10 @@ def thank_you():
         excel_practical_tasks=EXCEL_PRACTICAL_TASKS,
         excel_practical_score=session.get('excel_practical_score'),
         excel_sheet_scores=session.get('excel_sheet_scores', {}),
+        # Pass configurable criteria to template
+        pass_wpm=TYPING_PASS_WPM,
+        pass_accuracy=TYPING_PASS_ACCURACY,
+        pass_count=TYPING_PASS_COUNT,
     )
 
 
@@ -1115,6 +1113,10 @@ def download_results():
         attempt_number=attempt_number,
         signup_date=signup_date,
         dob=dob,
+        # Pass configurable criteria to PDF generator
+        pass_wpm=TYPING_PASS_WPM,
+        pass_accuracy=TYPING_PASS_ACCURACY,
+        pass_count=TYPING_PASS_COUNT,
     )
 
     error_buffer, error_filename = generate_error_report_pdf(

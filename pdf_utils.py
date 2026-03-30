@@ -31,8 +31,6 @@ else:
     base_path = os.path.dirname(__file__)
 
 # ── Logo path ──────────────────────────────────────────────────
-# Check user_dir first (where app.py copies logo.png on first boot),
-# then fall back to static/ for environments where it may still live.
 def _find_logo():
     upload_folder = os.environ.get('DATA_ROOT', base_path)
     candidates = [
@@ -66,7 +64,12 @@ def generate_typing_test_pdf(
     excel_score=0, excel_total=0, excel_practical_file=None,
     excel_practical_tasks=None, excel_practical_score=None,
     excel_sheet_scores=None, location="", distance=0.0,
-    attempt_number="", signup_date="", dob=""
+    attempt_number="", signup_date="", dob="",
+    # ── Configurable typing pass criteria ─────────────────────
+    # These default to the same values as app.py defaults.
+    # app.py passes the live values so the PDF always matches
+    # whatever thresholds are currently active.
+    pass_wpm=25, pass_accuracy=90, pass_count=2
 ):
     # ── Sanitize filename parts ────────────────────────────────
     sanitized_name = (
@@ -123,7 +126,6 @@ def generate_typing_test_pdf(
     def add_header(c, doc):
         c.saveState()
         try:
-            # Generated time in IST — accurate on both local and Render
             c.setFont('Helvetica', 8)
             c.drawString(
                 0.5*inch, letter[1] - 0.4*inch,
@@ -157,7 +159,7 @@ def generate_typing_test_pdf(
         c.drawRightString(letter[0]-0.5*inch, 0.85*inch, "Hiring Manager Signature")
         c.setLineWidth(0.5)
         c.line(0.5*inch, 0.65*inch, letter[0]-0.5*inch, 0.65*inch)
-        c.drawCentredString(letter[0]/2, 0.5*inch, "© SBL | InterviewAutomation2026")
+        c.drawCentredString(letter[0]/2, 0.5*inch, "© SBL | InterviewAutomation2025")
         c.restoreState()
 
     story = []
@@ -199,19 +201,27 @@ def generate_typing_test_pdf(
     # ── Typing Test Results ────────────────────────────────────
     story.append(Paragraph("Typing Test Results", custom_styles['Heading2']))
 
-    # Pass: at least 2 of 3 attempts with WPM >= 25 AND Accuracy >= 90
-    pass_count = sum(
+    # Pass criteria note in PDF — shows active thresholds
+    criteria_note = (
+        f"Pass criteria: WPM \u2265 {pass_wpm} AND Accuracy \u2265 {pass_accuracy}% "
+        f"in at least {pass_count} of 3 scored attempts."
+    )
+    story.append(Paragraph(criteria_note, custom_styles['Normal']))
+    story.append(Spacer(1, 4))
+
+    # Overall pass using configurable thresholds
+    attempt_pass_count = sum(
         1 for r in typing_results
-        if r['wpm'] >= 25 and r['accuracy'] >= 90
+        if r['wpm'] >= pass_wpm and r['accuracy'] >= pass_accuracy
     )
     overall_typing_result = (
-        'Pass' if typing_results and pass_count >= 2 else 'Fail'
+        'Pass' if typing_results and attempt_pass_count >= pass_count else 'Fail'
     )
 
     if typing_results:
         typing_data = [['Attempt', 'WPM', 'Accuracy', 'Time', 'Result']]
         for result in typing_results[:3]:
-            attempt_passed = result['wpm'] >= 25 and result['accuracy'] >= 90
+            attempt_passed = result['wpm'] >= pass_wpm and result['accuracy'] >= pass_accuracy
             label = ATTEMPT_LABELS.get(result['attempt'], f"Attempt {result['attempt']}")
             typing_data.append([
                 label,
@@ -247,7 +257,6 @@ def generate_typing_test_pdf(
             colWidths=[6.5*inch], hAlign='LEFT'
         ))
 
-    # Pass/Fail badge
     typing_result_table = Table(
         [[f"Result: {overall_typing_result}"]],
         colWidths=[2*inch], hAlign='RIGHT'
@@ -396,7 +405,6 @@ def generate_error_report_pdf(
     name, handwritten_results=None, excel_quiz_results=None,
     signup_date="", dob=""
 ):
-    # ── Sanitize filename parts ────────────────────────────────
     sanitized_name = (
         "".join(c for c in name if c.isalnum() or c in (' ', '_'))
         .strip().replace(' ', '_')
@@ -415,7 +423,6 @@ def generate_error_report_pdf(
 
     filename = f"Error_Report_{sanitized_name}_{sanitized_dob}_{sanitized_date}.pdf"
 
-    # ── Document setup ─────────────────────────────────────────
     buffer = io.BytesIO()
     doc    = SimpleDocTemplate(
         buffer, pagesize=letter,
@@ -439,11 +446,9 @@ def generate_error_report_pdf(
         ),
     }
 
-    # ── Header ─────────────────────────────────────────────────
     def add_header(c, doc):
         c.saveState()
         try:
-            # Generated time in IST — accurate on both local and Render
             c.setFont('Helvetica', 9)
             c.drawString(
                 0.5*inch, letter[1] - 0.65*inch,
@@ -468,7 +473,6 @@ def generate_error_report_pdf(
             c.drawString(letter[0] - 2*inch, letter[1] - 0.65*inch, f"Logo error: {e}")
         c.restoreState()
 
-    # ── Footer ─────────────────────────────────────────────────
     def add_footer(c, doc):
         c.saveState()
         c.setFont('Helvetica', 9)
@@ -585,7 +589,6 @@ def generate_error_report_pdf(
 
         story.append(Spacer(1, 24))
 
-    # ── Build PDF ──────────────────────────────────────────────
     doc.build(
         story,
         onFirstPage=lambda c, d: (add_header(c, d), add_footer(c, d)),
